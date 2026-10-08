@@ -19,9 +19,15 @@ if (has('--help') || has('-h')) {
   process.exit(0)
 }
 function fsHelp() {
-  return `toolkit-scan — see which tools, skills and MCP servers you actually use.\n\n  node toolkit-scan.mjs            scan, then open the dashboard\n  --share                          write a single shareable HTML file instead\n  --cached                         reuse the previous scan\n  --discover                       list transcript folders found, then exit\n  --source <dir>                   add a transcript folder (repeatable)\n  --no-open                        don't launch the browser\n\nTranscript folders are also read from ~/.toolkit-scan/sources.json ({"paths":[...]}), CLAUDE_CONFIG_DIR and CODEX_HOME.`
+  return `toolkit-scan — see which tools, skills and MCP servers you actually use.\n\n  node toolkit-scan.mjs            scan, then open the dashboard\n  --share                          write a single shareable HTML file instead\n  --cached                         reuse the previous scan\n  --discover                       list transcript folders found, then exit\n  --demo                           open the dashboard with sample data (no transcripts needed)\n  --source <dir>                   add a transcript folder (repeatable)\n  --no-open                        don't launch the browser\n\nTranscript folders are also read from ~/.toolkit-scan/sources.json ({"paths":[...]}), CLAUDE_CONFIG_DIR and CODEX_HOME.`
 }
 
+// --demo: show the dashboard with synthetic sample data (no transcripts needed). Add --share to export it as a file.
+if (has('--demo')) {
+  const demo = path.join(here, 'demo/fingerprint.demo.json')
+  if (has('--share')) process.exit(spawnSync(node, [path.join(here, 'share.mjs'), '--data', demo, '--out', path.join(here, 'demo/toolkit-scan-demo.html')], { stdio: 'inherit' }).status ?? 1)
+  spawn(node, [path.join(here, 'server.mjs'), '--data', demo, ...args.filter(a => a === '--no-open')], { stdio: 'inherit' })
+} else {
 if (has('--discover')) process.exit(spawnSync(node, [path.join(here, 'scan.mjs'), ...args], { stdio: 'inherit' }).status ?? 1)
 
 if (!has('--cached')) {
@@ -33,3 +39,4 @@ if (!has('--cached')) {
 if (has('--share')) process.exit(spawnSync(node, [path.join(here, 'share.mjs')], { stdio: 'inherit' }).status ?? 1)
 
 spawn(node, [path.join(here, 'server.mjs'), ...args.filter(a => a === '--no-open')], { stdio: 'inherit' })
+}

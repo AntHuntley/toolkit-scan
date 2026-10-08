@@ -490,7 +490,7 @@ export default function Skills() {
             <span style={{ color: '#fff' }}>Overview</span>
           </h1>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#909090', letterSpacing: '0.1em' }}>
-            {data.total} skills discovered · click any skill to read its SKILL.md
+            {data.total} skills discovered · click any skill for details
           </div>
         </div>
 
@@ -638,11 +638,6 @@ export default function Skills() {
               <tr style={{ background: '#0c0c0c', borderBottom: '2px solid var(--border)' }}>
                 {['Category', 'Skill', 'Source', 'Use Frequency'].map((h, i) => (
                   <th key={h} style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: '#fff', borderLeft: i === 0 ? 'none' : '1px solid var(--border)', textAlign: 'left', verticalAlign: 'bottom', position: 'relative' }}>
-                    {h === 'Skill' && (
-                      <div style={{ position: 'absolute', bottom: 8, right: 10, fontFamily: 'var(--font-mono)', fontSize: 7, color: '#fff', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                        Applies to new chats
-                      </div>
-                    )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {h === 'Use Frequency' ? (
                         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
