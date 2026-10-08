@@ -272,3 +272,7 @@ The UI source is in `app/`. The built output (`ui/`, `ui-single/`) is committed 
 ---
 
 <div align="center"><sub>Toolkit Scan · deterministic, local-first, no tokens spent</sub></div>
+
+<div align="center">
+  <a href="https://www.buymeacoffee.com/AntHuntley"><img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=AntHuntley&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" /></a>
+</div>
