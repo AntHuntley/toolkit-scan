@@ -336,16 +336,6 @@ export default function Toolkit() {
         <div style={{ padding: '0 32px 40px', maxWidth: 1600, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           {/* Controls */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 14, marginBottom: 16, flexWrap: 'wrap' }}>
-            {heatOn && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-mono)', fontSize: 8.5, letterSpacing: '0.1em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                <span>Rarely used</span>
-                <div style={{ width: 120, height: 8, borderRadius: 4, background: `linear-gradient(90deg, rgba(${heatRgb(0)},0.4), rgba(${heatRgb(0.5)},0.5), rgba(${heatRgb(1)},0.62))` }} />
-                <span>Often used</span>
-              </div>
-            )}
-            <button onClick={() => setHeatOn(h => !h)}
-              style={{ background: heatOn ? 'rgba(78,201,176,0.08)' : 'none', border: '1px solid var(--teal)', color: 'var(--teal)', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 5, cursor: 'pointer', transition: 'all 0.15s' }}
-            >{heatOn ? '◉ Heat map' : '○ Heat map'}</button>
             <button onClick={() => setShowStats(s => !s)}
               style={{ background: 'none', border: '1px solid var(--border-hi)', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 5, cursor: 'pointer', transition: 'all 0.15s' }}
             >{showStats ? '− Hide Statistics' : '+ Show Statistics'}</button>
@@ -405,6 +395,20 @@ export default function Toolkit() {
           </>}
         </div>
       )}
+
+      {/* Heat map controls: sit right above the tiles they colour */}
+      <div style={{ padding: '0 32px 18px', maxWidth: 1600, margin: '0 auto', width: '100%', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 14, flexWrap: 'wrap' }}>
+            {heatOn && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-mono)', fontSize: 8.5, letterSpacing: '0.1em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <span>Rarely used</span>
+                <div style={{ width: 120, height: 8, borderRadius: 4, background: `linear-gradient(90deg, rgba(${heatRgb(0)},0.4), rgba(${heatRgb(0.5)},0.5), rgba(${heatRgb(1)},0.62))` }} />
+                <span>Often used</span>
+              </div>
+            )}
+            <button onClick={() => setHeatOn(h => !h)}
+              style={{ background: heatOn ? 'rgba(78,201,176,0.08)' : 'none', border: '1px solid var(--teal)', color: 'var(--teal)', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 5, cursor: 'pointer', transition: 'all 0.15s' }}
+            >{heatOn ? '◉ Heat map' : '○ Heat map'}</button>
+      </div>
 
       {/* Categories */}
       <div style={{ padding: '0 32px 40px', display: 'flex', flexDirection: 'column', gap: 32, maxWidth: 1600, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
