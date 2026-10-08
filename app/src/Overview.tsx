@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { ToolkitSunburst, type ToolkitData } from './Sunburst'
 
 interface Row {
   name: string
@@ -20,12 +21,38 @@ interface Fingerprint {
   tools: Row[]; skills: Row[]; mcp: Row[]; builtin: Row[]; subagents: Row[]
 }
 
-// Same blue → green log scale as the Tools heat map.
+// Same blue → green log scale as the Tools heat map; bars get lighter/brighter towards their tip for a glassy look.
 const LO = [59, 130, 246], HI = [22, 163, 74]
 const rgb = (t: number) => LO.map((c, i) => Math.round(c + (HI[i] - c) * t)).join(',')
+const lighten = (c: string, k: number) => c.split(',').map(v => Math.round(+v + (255 - +v) * k)).join(',')
 const heat = (n: number, max: number) => (max ? Math.log1p(n) / Math.log1p(max) : 0)
 const num = (n: number) => n.toLocaleString('en-US')
 const AGENT_LABEL: Record<string, string> = { claude: 'Claude Code', codex: 'Codex' }
+const AGENT_COLOR: Record<string, string> = { claude: '#e8895a', codex: '#cfcfd4' }
+const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+
+// True once the element has scrolled into view (and immediately for reduced-motion users). Fires once.
+function useInView<T extends HTMLElement>(threshold = 0.15) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || shown) return
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setShown(true); io.disconnect() } }, { threshold })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [shown, threshold])
+  return [ref, shown] as const
+}
+
+function Reveal({ children, delay = 0 }: { children: (shown: boolean) => ReactNode; delay?: number }) {
+  const [ref, shown] = useInView<HTMLDivElement>()
+  return (
+    <div ref={ref} style={{ opacity: shown ? 1 : 0, transform: shown ? 'none' : 'translateY(22px)', transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ${EASE} ${delay}ms` }}>
+      {children(shown)}
+    </div>
+  )
+}
 
 function Tile({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
   return (
@@ -37,43 +64,84 @@ function Tile({ label, value, sub, color }: { label: string; value: string | num
   )
 }
 
-function Panel({ title, hint, to, children }: { title: string; hint?: string; to?: string; children: React.ReactNode }) {
+function Panel({ title, hint, to, children }: { title: string; hint?: string; to?: string; children: (shown: boolean) => ReactNode }) {
   return (
-    <section style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '22px 26px', minWidth: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18 }}>
-        <h2 style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{title}</h2>
-        {hint && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8.5, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{hint}</span>}
-        {to && <Link to={to} style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)' }}>View all →</Link>}
-      </div>
-      {children}
-    </section>
+    <Reveal>
+      {shown => (
+        <section style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '22px 26px', minWidth: 0, height: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{title}</h2>
+            {hint && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8.5, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{hint}</span>}
+            {to && <Link to={to} style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)' }}>View all →</Link>}
+          </div>
+          {children(shown)}
+        </section>
+      )}
+    </Reveal>
   )
 }
 
-function Bars({ rows }: { rows: Row[] }) {
+// Glassy bar: translucent gradient that brightens towards the tip, top highlight, soft glow.
+function glass(c: string, vertical: boolean) {
+  const hi = lighten(c, 0.42)
+  return {
+    background: `linear-gradient(${vertical ? '0deg' : '90deg'}, rgba(${c},0.5) 0%, rgba(${lighten(c, 0.18)},0.8) 55%, rgba(${hi},0.97) 100%)`,
+    border: '1px solid rgba(255,255,255,0.22)',
+    boxShadow: `0 0 16px rgba(${hi},0.26), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -6px 10px rgba(0,0,0,0.18)`,
+    backdropFilter: 'blur(3px)',
+  } as const
+}
+const Sheen = ({ vertical }: { vertical?: boolean }) => (
+  <div style={{ position: 'absolute', inset: vertical ? '0 50% 0 0' : '0 0 50% 0', background: `linear-gradient(${vertical ? '90deg' : '180deg'}, rgba(255,255,255,0.3), rgba(255,255,255,0))`, borderRadius: 'inherit', pointerEvents: 'none' }} />
+)
+
+function Bars({ rows, shown }: { rows: Row[]; shown: boolean }) {
   const max = rows[0]?.uses || 0
   if (!rows.length) return <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Nothing found yet.</div>
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {rows.map(r => (
+      {rows.map((r, i) => (
         <div key={r.name} style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
           <div style={{ width: 150, fontSize: 11, color: '#e8e8e8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 }} title={r.name}>{r.name}</div>
-          <div style={{ flex: 1, height: 12, background: 'var(--card)', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.max(2, (r.uses / max) * 100)}%`, background: `rgba(${rgb(heat(r.uses, max))},0.75)`, borderRadius: 3 }} />
+          <div style={{ flex: 1, height: 14, background: 'var(--card)', borderRadius: 4 }}>
+            <div style={{ position: 'relative', height: '100%', width: shown ? `${Math.max(2, (r.uses / max) * 100)}%` : '0%', borderRadius: 4, transition: `width 1s ${EASE} ${i * 70}ms`, ...glass(rgb(heat(r.uses, max)), false) }}>
+              <Sheen />
+            </div>
           </div>
-          <div style={{ width: 92, textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', flexShrink: 0 }}>{num(r.uses)} <span style={{ color: 'var(--text-muted)' }}>· {num(r.sessions)}s</span></div>
+          <div style={{ width: 92, textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', flexShrink: 0, opacity: shown ? 1 : 0, transition: `opacity 0.6s ease ${i * 70 + 300}ms` }}>{num(r.uses)} <span style={{ color: 'var(--text-muted)' }}>· {num(r.sessions)}s</span></div>
         </div>
       ))}
     </div>
   )
 }
 
+// Skills as a sunburst: ring 1 = where the skill comes from, ring 2 = how heavily it's used.
+const SOURCE_LABEL: Record<string, string> = { user: 'Your skills', plugin: 'Plugin skills', bundled: 'Bundled skills', unknown: 'Other / project' }
+const BANDS: [string, (n: number) => boolean][] = [
+  ['Heavy · 50+ uses', n => n >= 50], ['Regular · 10–49', n => n >= 10 && n < 50], ['Occasional · 1–9', n => n >= 1 && n < 10], ['Never used', n => n === 0],
+]
+function skillsSunburst(skills: Row[]): ToolkitData {
+  const categories = Object.entries(SOURCE_LABEL).map(([src, category]) => {
+    const mine = skills.filter(s => (s.source || 'unknown') === src)
+    const subcats = BANDS.map(([subcat, test]) => ({
+      subcat,
+      tools: mine.filter(s => test(s.uses)).sort((a, b) => b.uses - a.uses).map(s => ({
+        name: s.name, desc: s.uses ? `${num(s.uses)} uses · ${num(s.sessions)} sessions` : 'Installed, never used', status: '', simpleIcon: '', url: '', group: null, uses: s.uses,
+      })),
+    })).filter(sc => sc.tools.length)
+    return { category, count: mine.length, subcats }
+  }).filter(c => c.count)
+  return { categories, total: skills.length }
+}
+
 export default function Overview() {
   const [fp, setFp] = useState<Fingerprint | null>(null)
+  const [toolkit, setToolkit] = useState<ToolkitData | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/fingerprint').then(r => r.json()).then(d => (d.error ? setError(d.error) : setFp(d))).catch(e => setError(e.message))
+    fetch('/api/toolkit').then(r => r.json()).then(d => { if (!d.error) setToolkit(d) }).catch(() => {})
   }, [])
 
   const v = useMemo(() => {
@@ -92,6 +160,7 @@ export default function Overview() {
       from: dates[0], to: dates[dates.length - 1],
       unusedSkills: fp.skills.filter(s => s.installed && !s.uses),
       unusedTools: fp.tools.filter(t => t.uses === 0),
+      skillsSb: skillsSunburst(fp.skills),
     }
   }, [fp])
 
@@ -100,6 +169,7 @@ export default function Overview() {
 
   const monthMax = Math.max(1, ...v.monthRows.map(([, n]) => n))
   const agentTotal = Object.values(v.byAgent).reduce((a, b) => a + b, 0) || 1
+  const agents = Object.entries(v.byAgent)
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -111,42 +181,64 @@ export default function Overview() {
           </h1>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#888', letterSpacing: '0.08em' }}>
             {num(fp.scan.files)} transcripts · {num(fp.scan.sessions ?? 0)} sessions · {v.from} → {v.to}
-            {Object.keys(v.byAgent).length > 0 && ` · ${Object.keys(v.byAgent).map(a => AGENT_LABEL[a] || a).join(' + ')}`}
+            {agents.length > 0 && ` · ${agents.map(([a]) => AGENT_LABEL[a] || a).join(' + ')}`}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <Tile label="Tools used" value={v.toolsUsed} sub={`${fp.installedCounts.tools} installed`} color="#4ec9b0" />
-          <Tile label="Skills used" value={v.skillsUsed} sub={`${fp.installedCounts.skills} installed`} color="#b478ff" />
-          <Tile label="MCP servers used" value={v.mcpUsed} sub={`${fp.installedCounts.mcp} configured`} color="#6395ff" />
-          <Tile label="Agent tool calls" value={v.calls} color="#50dc82" />
-          <Tile label="Never used" value={v.unusedSkills.length + v.unusedTools.length} sub="installed skills + tools" color="#ce9178" />
+        {/* Hero: the two sunbursts */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(560px, 1fr))', gap: 24 }}>
+          <Panel title="Tools" hint="hover a segment · click to pin" to="/toolkit">
+            {() => (toolkit ? <ToolkitSunburst data={toolkit} compact noun="tools" /> : null)}
+          </Panel>
+          <Panel title="Skills" hint="by source and how often used" to="/skills">
+            {() => <ToolkitSunburst data={v.skillsSb} compact noun="skills" />}
+          </Panel>
         </div>
+
+        <Reveal>
+          {() => (
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <Tile label="Tools used" value={v.toolsUsed} sub={`${fp.installedCounts.tools} installed`} color="#4ec9b0" />
+              <Tile label="Skills used" value={v.skillsUsed} sub={`${fp.installedCounts.skills} installed`} color="#b478ff" />
+              <Tile label="MCP servers used" value={v.mcpUsed} sub={`${fp.installedCounts.mcp} configured`} color="#6395ff" />
+              <Tile label="Agent tool calls" value={v.calls} color="#50dc82" />
+              <Tile label="Never used" value={v.unusedSkills.length + v.unusedTools.length} sub="installed skills + tools" color="#ce9178" />
+            </div>
+          )}
+        </Reveal>
 
         <Panel title="Activity by month" hint="tool calls · partial months at either end">
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 150 }}>
-            {v.monthRows.map(([m, n]) => (
-              <div key={m} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-dim)' }}>{num(n)}</div>
-                <div style={{ width: '100%', maxWidth: 70, height: `${Math.max(3, (n / monthMax) * 100)}%`, background: `rgba(${rgb(heat(n, monthMax))},0.75)`, borderRadius: '4px 4px 0 0' }} />
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>{m}</div>
+          {shown => (
+            <>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 170 }}>
+                {v.monthRows.map(([m, n], i) => (
+                  <div key={m} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-dim)', opacity: shown ? 1 : 0, transition: `opacity 0.6s ease ${i * 120 + 500}ms` }}>{num(n)}</div>
+                    <div style={{ flex: 1, width: '100%', maxWidth: 70, display: 'flex', alignItems: 'flex-end' }}>
+                      <div style={{ position: 'relative', width: '100%', height: shown ? `${Math.max(2, (n / monthMax) * 100)}%` : '0%', borderRadius: '5px 5px 0 0', transition: `height 1.1s ${EASE} ${i * 120}ms`, ...glass(rgb(heat(n, monthMax)), true) }}>
+                        <Sheen vertical />
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>{m}</div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 18, background: 'var(--card)' }}>
-            {Object.entries(v.byAgent).map(([a, n], i) => <div key={a} title={`${AGENT_LABEL[a] || a}: ${num(n)}`} style={{ width: `${(n / agentTotal) * 100}%`, background: i ? '#b478ff' : '#4ec9b0' }} />)}
-          </div>
-          <div style={{ display: 'flex', gap: 18, marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>
-            {Object.entries(v.byAgent).map(([a, n], i) => <span key={a}><span style={{ color: i ? '#b478ff' : '#4ec9b0' }}>●</span> {AGENT_LABEL[a] || a} {Math.round((n / agentTotal) * 100)}%</span>)}
-          </div>
+              <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 18, background: 'var(--card)' }}>
+                {agents.map(([a, n]) => <div key={a} title={`${AGENT_LABEL[a] || a}: ${num(n)}`} style={{ width: shown ? `${(n / agentTotal) * 100}%` : '0%', background: AGENT_COLOR[a] || '#888', transition: `width 1.2s ${EASE} 400ms` }} />)}
+              </div>
+              <div style={{ display: 'flex', gap: 18, marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>
+                {agents.map(([a, n]) => <span key={a}><span style={{ color: AGENT_COLOR[a] || '#888' }}>●</span> {AGENT_LABEL[a] || a} {Math.round((n / agentTotal) * 100)}%</span>)}
+              </div>
+            </>
+          )}
         </Panel>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(520px, 1fr))', gap: 24 }}>
-          <Panel title="Top tools" hint="uses · sessions" to="/toolkit"><Bars rows={fp.tools.filter(t => t.uses).slice(0, 8)} /></Panel>
-          <Panel title="Top skills" hint="uses · sessions" to="/skills"><Bars rows={fp.skills.filter(s => s.uses).slice(0, 8)} /></Panel>
-          <Panel title="MCP servers" hint="calls · sessions" to="/toolkit"><Bars rows={fp.mcp.filter(m => m.uses).slice(0, 6)} /></Panel>
+          <Panel title="Top tools" hint="uses · sessions" to="/toolkit">{shown => <Bars rows={fp.tools.filter(t => t.uses).slice(0, 8)} shown={shown} />}</Panel>
+          <Panel title="Top skills" hint="uses · sessions" to="/skills">{shown => <Bars rows={fp.skills.filter(s => s.uses).slice(0, 8)} shown={shown} />}</Panel>
+          <Panel title="MCP servers" hint="calls · sessions" to="/toolkit">{shown => <Bars rows={fp.mcp.filter(m => m.uses).slice(0, 6)} shown={shown} />}</Panel>
           <Panel title="Installed but never used" hint="candidates to prune" to="/skills">
-            {v.unusedSkills.length + v.unusedTools.length === 0
+            {() => v.unusedSkills.length + v.unusedTools.length === 0
               ? <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Everything installed has been used.</div>
               : <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {[...v.unusedSkills, ...v.unusedTools].slice(0, 28).map(r => (

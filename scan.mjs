@@ -160,7 +160,7 @@ function discoverSources() {
 const sh = c => { try { const win = process.platform === 'win32'; return execFileSync(win ? 'cmd' : '/bin/sh', win ? ['/c', c.replace('command -v', 'where')] : ['-c', c], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 3000 }).toString().trim() } catch { return '' } }
 function installed() {
   const ls = d => { try { return fs.readdirSync(d, { withFileTypes: true }).filter(e => e.isDirectory() || e.isSymbolicLink()).map(e => e.name) } catch { return [] } }
-  const skills = new Set([...ls(path.join(HOME, '.claude/skills')), ...ls(path.join(HOME, '.codex/skills'))].filter(s => !s.startsWith('.')).map(s => s.toLowerCase()))
+  const skills = new Set([...ls(path.join(HOME, '.claude/skills')), ...ls(path.join(HOME, '.codex/skills'))].filter(s => !s.startsWith('.') && !s.startsWith('_')).map(s => s.toLowerCase()))
   const mcp = new Set()
   const plugin = new Set(), bundled = new Set(BUNDLED_SKILLS)
   const walkSkills = (d, depth = 0) => { try { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name)
