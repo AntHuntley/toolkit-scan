@@ -15,6 +15,27 @@
 
 ---
 
+## Quickstart
+
+Paste this into Claude Code, Codex or any coding agent that can run commands on your machine. It does the rest.
+
+```text
+Set up and run "Toolkit Scan" for me: https://github.com/AntHuntley/toolkit-scan
+
+1. Check Node.js 18+ is installed (`node --version`). If it isn't, tell me and stop. Don't install anything without asking.
+2. Clone the repo into ~/toolkit-scan (skip if it's already there) and cd into it.
+3. Run `node toolkit-scan.mjs --discover` and show me which transcript folders it found. If it found none, or only one agent, search for where my agent transcripts (.jsonl files) are stored, show me what you find, and ask before adding any folder to ~/.toolkit-scan/sources.json as {"paths":["<folder>"]}.
+4. Run `node toolkit-scan.mjs` to scan and open the dashboard. Tell me the URL, how many transcripts and sessions it analysed, and the date range it covers.
+5. Summarise what it found in a few lines: my most-used tools, skills and MCP servers, and what I've installed but never used.
+6. Ask whether I want a shareable copy. If yes, run `node toolkit-scan.mjs --share`, list any skill or MCP-server names in it that look private or client-specific, and wait for my OK before sending or publishing the file anywhere.
+
+Don't edit any files in the repo. Transcripts are read-only and must never be uploaded or copied.
+```
+
+> **If the agent can't clone the repo,** you probably don't have access to it yet. Ask the owner, or use the manual steps below.
+
+---
+
 ## Try it in 30 seconds
 
 You need [Node.js](https://nodejs.org) 18 or newer. There is nothing to install.
