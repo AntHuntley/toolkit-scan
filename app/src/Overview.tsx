@@ -249,6 +249,25 @@ export default function Overview() {
                 </div>}
           </Panel>
         </div>
+
+        <Reveal>
+          {() => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, marginTop: 8 }}>
+              {[
+                { to: '/toolkit', title: 'Explore your tools', sub: `${toolkit?.total ?? fp.tools.length + fp.mcp.length} tools, MCP servers and agents · heat map, categories, detail`, color: '78,201,176' },
+                { to: '/skills', title: 'Explore your skills', sub: `${fp.skills.length} skills · usage counts, sources, never-used`, color: '180,120,255' },
+              ].map(c => (
+                <Link key={c.to} to={c.to} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '22px 26px', borderRadius: 12, border: `1px solid rgba(${c.color},0.35)`, background: `linear-gradient(135deg, rgba(${c.color},0.14) 0%, rgba(${c.color},0.03) 100%)` }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 16, fontWeight: 500, color: '#fff', marginBottom: 4 }}>{c.title}</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: '0.06em', color: 'var(--text-muted)' }}>{c.sub}</div>
+                  </div>
+                  <div style={{ fontSize: 22, color: `rgb(${c.color})` }}>→</div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Reveal>
       </div>
     </div>
   )
