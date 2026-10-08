@@ -18,5 +18,11 @@ Run: `node scan.mjs` over 2,997 transcript files (2,070 Claude Code + 927 Codex,
 7. **Codex dominance.** Codex contributes ~40% of tool calls (e.g. Git 4,267) and its skill use is only detectable as `SKILL.md` reads (heuristic, 1,002 hits). Label it as inferred.
 8. **Sessions metric** uses the line `sessionId`; confirm subagent transcripts roll up to their parent session (not verified).
 
+## Status after fixes (branch feat/fixes-and-ui)
+- Fixed: shell-keyword noise (1), MCP per-tool breakdown `mcpTools` (5), skill provenance `source` = user/plugin/bundled/unknown (4), `--redact` drops unknown/slash tails (3), session count (972 unique Claude sessions across 2,070 files, so subagent files roll up to the parent session; 8 mostly resolved).
+- Still open: larger CLI catalog (2), history window shown in UI (6), Codex skill use is inferred (7), 14 skills still `unknown` source.
+- UI: `server.mjs` serves the vendored AI Studio build (`ui/`) on localhost:4747 and answers `/api/toolkit`, `/api/toolkit/usage`, `/api/skills`, `/api/statistics` from the scan. Writes return 405.
+- Verified headless (`check-ui.mjs`): Toolkit sunburst and Skills page render real data, 0 console errors. Overview page is mostly empty (needs `/api/workflow-overview`). Rescan/GitHub buttons still visible but inert. One icon fetch (jq) 404s on the CDN.
+
 ## Not yet tested
 Windows/WSL paths, Cursor/Copilot sources, incremental scanning, the UI/localhost server and the Agentic OS module.

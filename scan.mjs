@@ -31,7 +31,8 @@ const CLI = {
   sops: ['sops', 'Security'], op: ['1Password CLI', 'Security'], gcloud: ['gcloud', 'Infrastructure'], aws: ['AWS CLI', 'Infrastructure'],
   az: ['Azure CLI', 'Infrastructure'], osascript: ['AppleScript', 'macOS'], open: ['open (macOS)', 'macOS'], code: ['VS Code CLI', 'IDE'],
 }
-const IGNORE = new Set('cd ls echo cat head tail grep sed awk sort uniq wc find xargs tr cut mkdir rm cp mv touch chmod test true false printf export source set which sleep pwd date env read if then else fi for do done while case esac exit return diff tee basename dirname stat ps kill lsof tar unzip zip sh bash zsh [ [[ ln du df'.split(' '))
+const IGNORE = new Set('cd ls echo cat head tail grep sed awk sort uniq wc find xargs tr cut mkdir rm cp mv touch chmod test true false printf export source set which sleep pwd date env read if then else fi for do done while case esac exit return diff tee basename dirname stat ps kill lsof tar unzip zip sh bash zsh [ [[ ln du df next break until continue wait nl disown local shift function select trap eval unset alias'.split(' '))
+const BUNDLED_SKILLS = ['claude-api','update-config','run','code-review','simplify','loop','init','security-review','fewer-permission-prompts','keybindings-help','schedule','dataviz','artifact-design','artifact-diagramming','artifact-capabilities','workflow-authoring','plugin-authoring','review','autonomy']
 const WRAPPERS = new Set(['sudo', 'time', 'command', 'exec', 'nohup', 'env', 'nice', 'timeout', 'builtin'])
 
 function cmdNames(cmd) {
@@ -51,7 +52,7 @@ function cmdNames(cmd) {
 }
 
 // ── Accumulator: item → {n, sessions:Set, first, last, week:{}, agents:{}}
-const acc = { tool: new Map(), skill: new Map(), mcp: new Map(), builtin: new Map(), slash: new Map(), unknownCli: new Map(), subagent: new Map() }
+const acc = { tool: new Map(), skill: new Map(), mcp: new Map(), builtin: new Map(), slash: new Map(), unknownCli: new Map(), subagent: new Map(), mcpTool: new Map() }
 function bump(kind, key, { session, ts, agent }) {
   let m = acc[kind].get(key)
   if (!m) acc[kind].set(key, (m = { n: 0, sessions: new Set(), first: ts, last: ts, week: {}, agents: {} }))
@@ -62,7 +63,7 @@ function bump(kind, key, { session, ts, agent }) {
 }
 
 const stats = { files: 0, bytes: 0, lines: 0, parsed: 0, parseErrors: 0, dupToolUse: 0, perAgent: {} }
-const seenToolUse = new Set()
+const seenToolUse = new Set(), allSessions = new Set()
 
 function recordBash(cmd, ctx) {
   for (const name of cmdNames(cmd)) {
@@ -81,7 +82,7 @@ async function scanFile(file, agent) {
       if (!hasTool && !hasSlash) continue
       let o; try { o = JSON.parse(line) } catch { stats.parseErrors++; continue }
       stats.parsed++
-      const ts = o.timestamp, ctx = { session: o.sessionId || session, ts, agent }
+      const ts = o.timestamp, ctx = { session: o.sessionId || session, ts, agent }; allSessions.add(ctx.session)
       const content = o.message?.content
       if (o.type === 'assistant' && Array.isArray(content)) {
         for (const b of content) {
@@ -89,7 +90,7 @@ async function scanFile(file, agent) {
           if (b.id) { if (seenToolUse.has(b.id)) { stats.dupToolUse++; continue } seenToolUse.add(b.id) }
           const n = b.name || ''
           if (n === 'Skill') bump('skill', String(b.input?.skill || '?').toLowerCase(), { ...ctx, agent: 'claude:agent' })
-          else if (n.startsWith('mcp__')) bump('mcp', n.split('__')[1] || '?', ctx)
+          else if (n.startsWith('mcp__')) { const [, srv, ...t] = n.split('__'); bump('mcp', srv || '?', ctx); bump('mcpTool', `${srv}/${t.join('__')}`, ctx) }
           else if (n === 'Bash') recordBash(b.input?.command, ctx)
           else { bump('builtin', n, ctx); if (n === 'Agent' && b.input?.subagent_type) bump('subagent', b.input.subagent_type, ctx) }
         }
@@ -128,21 +129,27 @@ function installed() {
   const ls = d => { try { return fs.readdirSync(d, { withFileTypes: true }).filter(e => e.isDirectory() || e.isSymbolicLink()).map(e => e.name) } catch { return [] } }
   const skills = new Set([...ls(path.join(HOME, '.claude/skills')), ...ls(path.join(HOME, '.codex/skills'))].filter(s => !s.startsWith('.')).map(s => s.toLowerCase()))
   const mcp = new Set()
+  const plugin = new Set(), bundled = new Set(BUNDLED_SKILLS)
+  const walkSkills = (d, depth = 0) => { try { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name)
+    if (e.isDirectory() && e.name === 'skills') ls(p).forEach(n => plugin.add(n.toLowerCase()))
+    else if (e.isDirectory() && depth < 6 && e.name !== 'node_modules') walkSkills(p, depth + 1) } } catch {} }
+  walkSkills(path.join(HOME, '.claude/plugins')); ls(path.join(HOME, '.codex/skills/.system')).forEach(n => bundled.add(n.toLowerCase()))
   for (const f of [path.join(HOME, '.claude.json'), path.join(HOME, '.claude/settings.json')]) {
     try { const j = JSON.parse(fs.readFileSync(f, 'utf8')); Object.keys(j.mcpServers || {}).forEach(k => mcp.add(k)) } catch {}
   }
   const tools = new Set()
   for (const [cmd, [name]] of Object.entries(CLI)) if (sh(`command -v ${cmd}`)) tools.add(name)
   let ext = []; try { ext = fs.readdirSync(path.join(HOME, '.vscode/extensions')).filter(e => e !== 'extensions.json') } catch {}
-  return { skills, mcp, tools, vscodeExtensions: ext.length }
+  return { skills, mcp, tools, plugin, bundled, vscodeExtensions: ext.length }
 }
 
+let inst
 const rows = (kind, installedSet) => {
   const used = [...acc[kind]].map(([name, m]) => ({ name, uses: m.n, sessions: m.sessions.size, first: m.first?.slice(0, 10), last: m.last?.slice(0, 10), agents: m.agents, byMonth: m.week }))
   if (installedSet) {
     const have = new Set(used.map(u => u.name))
     for (const n of installedSet) if (!have.has(n)) used.push({ name: n, uses: 0, sessions: 0 })
-    used.forEach(u => (u.installed = installedSet.has(u.name)))
+    used.forEach(u => { u.installed = installedSet.has(u.name); u.source = u.installed ? 'user' : inst.plugin.has(u.name) ? 'plugin' : inst.bundled.has(u.name) ? 'bundled' : kind === 'skill' ? 'unknown' : undefined })
   }
   return used.sort((a, b) => b.uses - a.uses)
 }
@@ -157,7 +164,7 @@ for (const [f, agent] of list) {
   await scanFile(f, agent)
 }
 const scanMs = Date.now() - t0
-const inst = installed()
+inst = installed()
 
 // slash commands that are really skills (installed, or ever invoked through the Skill tool)
 const slashSkill = {}, slashOther = []
@@ -172,8 +179,11 @@ const result = {
   scan: { ...stats, mb: +(stats.bytes / 1e6).toFixed(0), seconds: +(scanMs / 1000).toFixed(1), uniqueToolUseIds: seenToolUse.size },
   installedCounts: { skills: inst.skills.size, mcp: inst.mcp.size, tools: inst.tools.size, vscodeExtensions: inst.vscodeExtensions },
   tools: rows('tool', inst.tools), skills: rows('skill', inst.skills), mcp: rows('mcp', inst.mcp),
-  subagents: rows('subagent'), builtin: rows('builtin'), unknownCli: rows('unknownCli').slice(0, 60), slashOther: slashOther.slice(0, 30),
+  mcpTools: rows('mcpTool').slice(0, 60), subagents: rows('subagent'), builtin: rows('builtin'), unknownCli: rows('unknownCli').slice(0, 60), slashOther: slashOther.slice(0, 30),
 }
+result.scan.sessions = allSessions.size
+const catOf = Object.fromEntries(Object.values(CLI)); result.tools.forEach(t => (t.category = catOf[t.name]))
+if (process.argv.includes('--redact')) { delete result.unknownCli; delete result.slashOther; result.redacted = true }
 fs.mkdirSync(path.dirname(OUT), { recursive: true })
 fs.writeFileSync(OUT, JSON.stringify(result, null, 1))
 
