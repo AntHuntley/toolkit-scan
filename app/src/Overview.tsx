@@ -1,0 +1,162 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+
+interface Row {
+  name: string
+  uses: number
+  sessions: number
+  first?: string
+  last?: string
+  installed?: boolean
+  source?: string
+  agents?: Record<string, number>
+  byMonth?: Record<string, number>
+}
+interface Fingerprint {
+  generatedAt: string
+  sources?: { dir: string; agent: string; files: number }[]
+  scan: { files: number; mb: number; seconds: number; sessions?: number }
+  installedCounts: { skills: number; mcp: number; tools: number; vscodeExtensions: number }
+  tools: Row[]; skills: Row[]; mcp: Row[]; builtin: Row[]; subagents: Row[]
+}
+
+// Same blue → green log scale as the Tools heat map.
+const LO = [59, 130, 246], HI = [22, 163, 74]
+const rgb = (t: number) => LO.map((c, i) => Math.round(c + (HI[i] - c) * t)).join(',')
+const heat = (n: number, max: number) => (max ? Math.log1p(n) / Math.log1p(max) : 0)
+const num = (n: number) => n.toLocaleString('en-US')
+const AGENT_LABEL: Record<string, string> = { claude: 'Claude Code', codex: 'Codex' }
+
+function Tile({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
+  return (
+    <div style={{ flex: '1 1 150px', background: `linear-gradient(135deg, ${color}29 0%, ${color}08 100%)`, border: `1px solid ${color}47`, borderRadius: 12, padding: '18px 20px' }}>
+      <div style={{ fontSize: 30, fontWeight: 300, letterSpacing: '-0.04em', color, marginBottom: 6 }}>{typeof value === 'number' ? num(value) : value}</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#b0b0b0' }}>{label}</div>
+      {sub && <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>{sub}</div>}
+    </div>
+  )
+}
+
+function Panel({ title, hint, to, children }: { title: string; hint?: string; to?: string; children: React.ReactNode }) {
+  return (
+    <section style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '22px 26px', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18 }}>
+        <h2 style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{title}</h2>
+        {hint && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8.5, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{hint}</span>}
+        {to && <Link to={to} style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)' }}>View all →</Link>}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+function Bars({ rows }: { rows: Row[] }) {
+  const max = rows[0]?.uses || 0
+  if (!rows.length) return <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Nothing found yet.</div>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {rows.map(r => (
+        <div key={r.name} style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          <div style={{ width: 150, fontSize: 11, color: '#e8e8e8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 }} title={r.name}>{r.name}</div>
+          <div style={{ flex: 1, height: 12, background: 'var(--card)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${Math.max(2, (r.uses / max) * 100)}%`, background: `rgba(${rgb(heat(r.uses, max))},0.75)`, borderRadius: 3 }} />
+          </div>
+          <div style={{ width: 92, textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', flexShrink: 0 }}>{num(r.uses)} <span style={{ color: 'var(--text-muted)' }}>· {num(r.sessions)}s</span></div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function Overview() {
+  const [fp, setFp] = useState<Fingerprint | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/fingerprint').then(r => r.json()).then(d => (d.error ? setError(d.error) : setFp(d))).catch(e => setError(e.message))
+  }, [])
+
+  const v = useMemo(() => {
+    if (!fp) return null
+    const used = (rows: Row[]) => rows.filter(r => r.uses > 0)
+    const calls = [...fp.builtin, ...fp.mcp]
+    const months: Record<string, number> = {}
+    for (const r of [...fp.tools, ...fp.mcp, ...fp.builtin]) for (const [m, n] of Object.entries(r.byMonth || {})) months[m] = (months[m] || 0) + n
+    const monthRows = Object.entries(months).sort(([a], [b]) => a.localeCompare(b))
+    const byAgent: Record<string, number> = {}
+    for (const r of calls) for (const [a, n] of Object.entries(r.agents || {})) { const k = a.split(':')[0]; byAgent[k] = (byAgent[k] || 0) + n }
+    const dates = [...fp.tools, ...fp.skills, ...fp.mcp, ...fp.builtin].flatMap(r => [r.first, r.last]).filter(Boolean).sort() as string[]
+    return {
+      toolsUsed: used(fp.tools).length, skillsUsed: used(fp.skills).length, mcpUsed: used(fp.mcp).length,
+      calls: calls.reduce((n, r) => n + r.uses, 0), monthRows, byAgent,
+      from: dates[0], to: dates[dates.length - 1],
+      unusedSkills: fp.skills.filter(s => s.installed && !s.uses),
+      unusedTools: fp.tools.filter(t => t.uses === 0),
+    }
+  }, [fp])
+
+  if (error) return <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f48771' }}>{error} — run <code>node toolkit-scan.mjs</code> first.</div>
+  if (!fp || !v) return <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', letterSpacing: '0.18em' }}>LOADING…</div>
+
+  const monthMax = Math.max(1, ...v.monthRows.map(([, n]) => n))
+  const agentTotal = Object.values(v.byAgent).reduce((a, b) => a + b, 0) || 1
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '40px 32px 56px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.22em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 14 }}>Your tool fingerprint</div>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, letterSpacing: '-0.03em', color: '#fff', marginBottom: 10 }}>
+            What you <em style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--teal)' }}>actually</em> use
+          </h1>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#888', letterSpacing: '0.08em' }}>
+            {num(fp.scan.files)} transcripts · {num(fp.scan.sessions ?? 0)} sessions · {v.from} → {v.to}
+            {Object.keys(v.byAgent).length > 0 && ` · ${Object.keys(v.byAgent).map(a => AGENT_LABEL[a] || a).join(' + ')}`}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <Tile label="Tools used" value={v.toolsUsed} sub={`${fp.installedCounts.tools} installed`} color="#4ec9b0" />
+          <Tile label="Skills used" value={v.skillsUsed} sub={`${fp.installedCounts.skills} installed`} color="#b478ff" />
+          <Tile label="MCP servers used" value={v.mcpUsed} sub={`${fp.installedCounts.mcp} configured`} color="#6395ff" />
+          <Tile label="Agent tool calls" value={v.calls} color="#50dc82" />
+          <Tile label="Never used" value={v.unusedSkills.length + v.unusedTools.length} sub="installed skills + tools" color="#ce9178" />
+        </div>
+
+        <Panel title="Activity by month" hint="tool calls · partial months at either end">
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 150 }}>
+            {v.monthRows.map(([m, n]) => (
+              <div key={m} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-dim)' }}>{num(n)}</div>
+                <div style={{ width: '100%', maxWidth: 70, height: `${Math.max(3, (n / monthMax) * 100)}%`, background: `rgba(${rgb(heat(n, monthMax))},0.75)`, borderRadius: '4px 4px 0 0' }} />
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>{m}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 18, background: 'var(--card)' }}>
+            {Object.entries(v.byAgent).map(([a, n], i) => <div key={a} title={`${AGENT_LABEL[a] || a}: ${num(n)}`} style={{ width: `${(n / agentTotal) * 100}%`, background: i ? '#b478ff' : '#4ec9b0' }} />)}
+          </div>
+          <div style={{ display: 'flex', gap: 18, marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>
+            {Object.entries(v.byAgent).map(([a, n], i) => <span key={a}><span style={{ color: i ? '#b478ff' : '#4ec9b0' }}>●</span> {AGENT_LABEL[a] || a} {Math.round((n / agentTotal) * 100)}%</span>)}
+          </div>
+        </Panel>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(520px, 1fr))', gap: 24 }}>
+          <Panel title="Top tools" hint="uses · sessions" to="/toolkit"><Bars rows={fp.tools.filter(t => t.uses).slice(0, 8)} /></Panel>
+          <Panel title="Top skills" hint="uses · sessions" to="/skills"><Bars rows={fp.skills.filter(s => s.uses).slice(0, 8)} /></Panel>
+          <Panel title="MCP servers" hint="calls · sessions" to="/toolkit"><Bars rows={fp.mcp.filter(m => m.uses).slice(0, 6)} /></Panel>
+          <Panel title="Installed but never used" hint="candidates to prune" to="/skills">
+            {v.unusedSkills.length + v.unusedTools.length === 0
+              ? <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Everything installed has been used.</div>
+              : <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {[...v.unusedSkills, ...v.unusedTools].slice(0, 28).map(r => (
+                    <span key={r.name} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#c9a99a', border: '1px solid rgba(206,145,120,0.3)', background: 'rgba(206,145,120,0.07)', borderRadius: 5, padding: '3px 8px' }}>{r.name}</span>
+                  ))}
+                  {v.unusedSkills.length + v.unusedTools.length > 28 && <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'center' }}>+{v.unusedSkills.length + v.unusedTools.length - 28} more</span>}
+                </div>}
+          </Panel>
+        </div>
+      </div>
+    </div>
+  )
+}

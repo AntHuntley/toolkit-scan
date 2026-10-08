@@ -10,9 +10,8 @@ import { execFileSync } from 'node:child_process'
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d }
 const HOME = os.homedir()
-const CLAUDE_DIR = arg('--claude', path.join(HOME, '.claude/projects'))
-const CODEX_DIR = arg('--codex', path.join(HOME, '.codex/sessions'))
-const OUT = arg('--out', path.join(path.dirname(new URL(import.meta.url).pathname), 'out/fingerprint.json'))
+const STATE_DIR = path.join(HOME, '.toolkit-scan')
+const OUT = arg('--out', path.join(STATE_DIR, 'fingerprint.json'))
 const LIMIT = Number(arg('--limit', 0))
 
 // ── Catalog: CLI command → display name + category (small seed; the long tail is reported, not guessed)
@@ -123,8 +122,42 @@ function walk(dir) {
   rec(dir); return out
 }
 
+// ── Transcript source discovery. Different installs keep transcripts in different places (CLI vs desktop app,
+// CLAUDE_CONFIG_DIR / CODEX_HOME overrides, XDG dirs, Windows, WSL). We probe known roots, honour env vars, a
+// user config file and --source flags, then sniff the file *format* (not the folder name) to pick the parser.
+const argAll = k => process.argv.flatMap((a, i, v) => (a === k && v[i + 1] ? [v[i + 1]] : []))
+const env = process.env
+const candidates = [
+  env.CLAUDE_CONFIG_DIR && path.join(env.CLAUDE_CONFIG_DIR, 'projects'),
+  path.join(HOME, '.claude/projects'), path.join(HOME, '.config/claude/projects'),
+  env.APPDATA && path.join(env.APPDATA, 'Claude/projects'), env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Claude/projects'),
+  path.join(HOME, 'Library/Application Support/Claude/projects'),
+  env.CODEX_HOME && path.join(env.CODEX_HOME, 'sessions'), env.CODEX_HOME && path.join(env.CODEX_HOME, 'archived_sessions'),
+  path.join(HOME, '.codex/sessions'), path.join(HOME, '.codex/archived_sessions'),
+  ...(process.platform === 'linux' ? globWin('/mnt/c/Users/*/.claude/projects').concat(globWin('/mnt/c/Users/*/.codex/sessions')) : []),
+  ...argAll('--source'), ...argAll('--claude'), ...argAll('--codex'),
+]
+function globWin(pat) { // tiny single-level '*' glob for WSL -> Windows profile dirs
+  const [pre, post] = pat.split('/*/'); try { return fs.readdirSync(pre).map(u => path.join(pre, u, post)) } catch { return [] } }
+try { const j = JSON.parse(fs.readFileSync(path.join(STATE_DIR, 'sources.json'), 'utf8')); candidates.push(...(j.paths || [])) } catch {}
+function sniff(file) { // → 'claude' | 'codex' | null, from the first lines of a transcript
+  try { const fd = fs.openSync(file, 'r'), b = Buffer.alloc(65536); const n = fs.readSync(fd, b, 0, 65536, 0); fs.closeSync(fd)
+    for (const l of b.toString('utf8', 0, n).split('\n').slice(0, 40)) { let o; try { o = JSON.parse(l) } catch { continue }
+      if (o.payload && (o.type === 'session_meta' || o.type === 'response_item' || o.type === 'event_msg' || o.type === 'turn_context')) return 'codex'
+      if (o.sessionId || (o.message && o.message.role) || o.type === 'user' || o.type === 'assistant') return 'claude' } } catch {}
+  return null }
+function discoverSources() {
+  const seen = new Set(), out = []
+  for (const c of candidates.filter(Boolean)) { const dir = path.resolve(c.replace(/^~(?=$|\/)/, HOME)); if (seen.has(dir)) continue; seen.add(dir)
+    let files; try { files = fs.statSync(dir).isDirectory() ? walk(dir) : dir.endsWith('.jsonl') ? [dir] : [] } catch { continue }
+    if (!files.length) continue
+    const kinds = {}; for (const f of files.slice(0, 5)) { const k = sniff(f); if (k) kinds[k] = (kinds[k] || 0) + 1 }
+    const agent = Object.entries(kinds).sort((a, b) => b[1] - a[1])[0]?.[0]
+    out.push({ dir, agent: agent || 'unrecognised', files: files.length }) }
+  return out }
+
 // ── Installed inventory
-const sh = c => { try { return execFileSync('/bin/sh', ['-c', c], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 3000 }).toString().trim() } catch { return '' } }
+const sh = c => { try { const win = process.platform === 'win32'; return execFileSync(win ? 'cmd' : '/bin/sh', win ? ['/c', c.replace('command -v', 'where')] : ['-c', c], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 3000 }).toString().trim() } catch { return '' } }
 function installed() {
   const ls = d => { try { return fs.readdirSync(d, { withFileTypes: true }).filter(e => e.isDirectory() || e.isSymbolicLink()).map(e => e.name) } catch { return [] } }
   const skills = new Set([...ls(path.join(HOME, '.claude/skills')), ...ls(path.join(HOME, '.codex/skills'))].filter(s => !s.startsWith('.')).map(s => s.toLowerCase()))
@@ -156,7 +189,10 @@ const rows = (kind, installedSet) => {
 
 // ── Run
 const t0 = Date.now()
-const targets = [...walk(CLAUDE_DIR).map(f => [f, 'claude']), ...walk(CODEX_DIR).map(f => [f, 'codex'])]
+const sources = discoverSources()
+const targets = sources.filter(x => x.agent !== 'unrecognised').flatMap(x => (fs.statSync(x.dir).isDirectory() ? walk(x.dir) : [x.dir]).map(f => [f, x.agent]))
+if (process.argv.includes('--discover')) { console.log(JSON.stringify(sources, null, 1)); process.exit(0) }
+if (!targets.length) { console.error('No agent transcripts found. Tried:\n' + candidates.filter(Boolean).map(c => '  ' + c).join('\n') + '\nPoint me at yours: --source <dir>  (or add {"paths":[...]} to ~/.toolkit-scan/sources.json)'); process.exit(2) }
 const list = LIMIT ? targets.slice(0, LIMIT) : targets
 for (const [f, agent] of list) {
   try { stats.bytes += fs.statSync(f).size } catch {}
@@ -175,6 +211,7 @@ for (const [name, r] of Object.entries(slashSkill)) {
 }
 
 const result = {
+  sources,
   generatedAt: new Date().toISOString(),
   scan: { ...stats, mb: +(stats.bytes / 1e6).toFixed(0), seconds: +(scanMs / 1000).toFixed(1), uniqueToolUseIds: seenToolUse.size },
   installedCounts: { skills: inst.skills.size, mcp: inst.mcp.size, tools: inst.tools.size, vscodeExtensions: inst.vscodeExtensions },

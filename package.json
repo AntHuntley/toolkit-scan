@@ -1,0 +1,43 @@
+{
+  "name": "toolkit-scan",
+  "version": "0.1.0",
+  "description": "Scan your AI agent transcripts and see which tools, skills and MCP servers you actually use.",
+  "type": "module",
+  "bin": {
+    "toolkit-scan": "toolkit-scan.mjs"
+  },
+  "files": [
+    "toolkit-scan.mjs",
+    "scan.mjs",
+    "server.mjs",
+    "api.mjs",
+    "share.mjs",
+    "ui",
+    "ui-single"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node toolkit-scan.mjs",
+    "dev:ui": "vite app",
+    "build:ui": "vite build app",
+    "build:single": "SINGLE=1 vite build app",
+    "build": "npm run build:ui && npm run build:single"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "d3": "^7.9.0",
+    "lucide-react": "^1.7.0",
+    "marked": "^18.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^5.4.1",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}
