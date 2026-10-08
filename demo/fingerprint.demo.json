@@ -1,0 +1,1464 @@
+{
+ "generatedAt": "2026-10-08T12:00:00.000Z",
+ "demo": true,
+ "scan": {
+  "files": 1480,
+  "mb": 3120,
+  "seconds": 14.2,
+  "sessions": 612,
+  "lines": 402113,
+  "parsed": 118902
+ },
+ "installedCounts": {
+  "skills": 18,
+  "mcp": 7,
+  "tools": 35,
+  "vscodeExtensions": 22
+ },
+ "tools": [
+  {
+   "name": "Git",
+   "uses": 11200,
+   "sessions": 1303,
+   "byMonth": {
+    "2026-07": 1203,
+    "2026-08": 2575,
+    "2026-09": 3514,
+    "2026-10": 3396
+   },
+   "agents": {
+    "claude": 6944,
+    "codex": 4256
+   },
+   "first": "2026-07-12",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Version Control"
+  },
+  {
+   "name": "Python",
+   "uses": 7600,
+   "sessions": 1174,
+   "byMonth": {
+    "2026-07": 929,
+    "2026-08": 1896,
+    "2026-09": 2843,
+    "2026-10": 2336
+   },
+   "agents": {
+    "claude": 4712,
+    "codex": 2888
+   },
+   "first": "2026-07-02",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Languages & Runtimes"
+  },
+  {
+   "name": "GitHub CLI",
+   "uses": 4300,
+   "sessions": 323,
+   "byMonth": {
+    "2026-07": 471,
+    "2026-08": 828,
+    "2026-09": 1509,
+    "2026-10": 1189
+   },
+   "agents": {
+    "claude": 2666,
+    "codex": 1634
+   },
+   "first": "2026-07-18",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Version Control"
+  },
+  {
+   "name": "npm",
+   "uses": 3600,
+   "sessions": 294,
+   "byMonth": {
+    "2026-07": 427,
+    "2026-08": 892,
+    "2026-09": 1242,
+    "2026-10": 998
+   },
+   "agents": {
+    "claude": 2232,
+    "codex": 1368
+   },
+   "first": "2026-07-06",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Package & Env"
+  },
+  {
+   "name": "Node.js",
+   "uses": 3100,
+   "sessions": 484,
+   "byMonth": {
+    "2026-07": 340,
+    "2026-08": 693,
+    "2026-09": 993,
+    "2026-10": 907
+   },
+   "agents": {
+    "claude": 1922,
+    "codex": 1178
+   },
+   "first": "2026-07-18",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Languages & Runtimes"
+  },
+  {
+   "name": "curl",
+   "uses": 2800,
+   "sessions": 204,
+   "byMonth": {
+    "2026-07": 300,
+    "2026-08": 556,
+    "2026-09": 926,
+    "2026-10": 772
+   },
+   "agents": {
+    "claude": 1736,
+    "codex": 1064
+   },
+   "first": "2026-07-16",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Network"
+  },
+  {
+   "name": "ripgrep",
+   "uses": 2100,
+   "sessions": 259,
+   "byMonth": {
+    "2026-07": 214,
+    "2026-08": 450,
+    "2026-09": 726,
+    "2026-10": 642
+   },
+   "agents": {
+    "claude": 1302,
+    "codex": 798
+   },
+   "first": "2026-07-05",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Search"
+  },
+  {
+   "name": "TypeScript",
+   "uses": 1900,
+   "sessions": 179,
+   "byMonth": {
+    "2026-07": 232,
+    "2026-08": 440,
+    "2026-09": 602,
+    "2026-10": 582
+   },
+   "agents": {
+    "claude": 1178,
+    "codex": 722
+   },
+   "first": "2026-07-07",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Languages & Runtimes"
+  },
+  {
+   "name": "Docker",
+   "uses": 1450,
+   "sessions": 122,
+   "byMonth": {
+    "2026-07": 164,
+    "2026-08": 326,
+    "2026-09": 550,
+    "2026-10": 427
+   },
+   "agents": {
+    "claude": 899,
+    "codex": 551
+   },
+   "first": "2026-07-13",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Infrastructure"
+  },
+  {
+   "name": "jq",
+   "uses": 1100,
+   "sessions": 113,
+   "byMonth": {
+    "2026-07": 146,
+    "2026-08": 274,
+    "2026-09": 417,
+    "2026-10": 335
+   },
+   "agents": {
+    "claude": 682,
+    "codex": 418
+   },
+   "first": "2026-07-13",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Data"
+  },
+  {
+   "name": "SSH",
+   "uses": 920,
+   "sessions": 70,
+   "byMonth": {
+    "2026-07": 120,
+    "2026-08": 224,
+    "2026-09": 309,
+    "2026-10": 268
+   },
+   "agents": {
+    "claude": 570,
+    "codex": 350
+   },
+   "first": "2026-07-12",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Infrastructure"
+  },
+  {
+   "name": "pnpm",
+   "uses": 840,
+   "sessions": 126,
+   "byMonth": {
+    "2026-07": 94,
+    "2026-08": 184,
+    "2026-09": 288,
+    "2026-10": 248
+   },
+   "agents": {
+    "claude": 520,
+    "codex": 320
+   },
+   "first": "2026-07-20",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Package & Env"
+  },
+  {
+   "name": "Vitest",
+   "uses": 760,
+   "sessions": 115,
+   "byMonth": {
+    "2026-07": 83,
+    "2026-08": 160,
+    "2026-09": 284,
+    "2026-10": 259
+   },
+   "agents": {
+    "claude": 471,
+    "codex": 289
+   },
+   "first": "2026-07-20",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Testing"
+  },
+  {
+   "name": "Playwright",
+   "uses": 640,
+   "sessions": 93,
+   "byMonth": {
+    "2026-07": 79,
+    "2026-08": 124,
+    "2026-09": 235,
+    "2026-10": 194
+   },
+   "agents": {
+    "claude": 396,
+    "codex": 244
+   },
+   "first": "2026-07-12",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Testing"
+  },
+  {
+   "name": "pytest",
+   "uses": 560,
+   "sessions": 78,
+   "byMonth": {
+    "2026-07": 72,
+    "2026-08": 132,
+    "2026-09": 200,
+    "2026-10": 177
+   },
+   "agents": {
+    "claude": 347,
+    "codex": 213
+   },
+   "first": "2026-07-17",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Testing"
+  },
+  {
+   "name": "uv",
+   "uses": 520,
+   "sessions": 74,
+   "byMonth": {
+    "2026-07": 60,
+    "2026-08": 123,
+    "2026-09": 167,
+    "2026-10": 155
+   },
+   "agents": {
+    "claude": 322,
+    "codex": 198
+   },
+   "first": "2026-07-02",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Package & Env"
+  },
+  {
+   "name": "SQLite",
+   "uses": 480,
+   "sessions": 52,
+   "byMonth": {
+    "2026-07": 57,
+    "2026-08": 102,
+    "2026-09": 156,
+    "2026-10": 164
+   },
+   "agents": {
+    "claude": 297,
+    "codex": 183
+   },
+   "first": "2026-07-15",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Data"
+  },
+  {
+   "name": "make",
+   "uses": 450,
+   "sessions": 35,
+   "byMonth": {
+    "2026-07": 57,
+    "2026-08": 90,
+    "2026-09": 162,
+    "2026-10": 129
+   },
+   "agents": {
+    "claude": 279,
+    "codex": 171
+   },
+   "first": "2026-07-01",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Build"
+  },
+  {
+   "name": "Go",
+   "uses": 420,
+   "sessions": 61,
+   "byMonth": {
+    "2026-07": 53,
+    "2026-08": 94,
+    "2026-09": 156,
+    "2026-10": 125
+   },
+   "agents": {
+    "claude": 260,
+    "codex": 160
+   },
+   "first": "2026-07-18",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Languages & Runtimes"
+  },
+  {
+   "name": "pip",
+   "uses": 410,
+   "sessions": 33,
+   "byMonth": {
+    "2026-07": 50,
+    "2026-08": 100,
+    "2026-09": 139,
+    "2026-10": 130
+   },
+   "agents": {
+    "claude": 254,
+    "codex": 156
+   },
+   "first": "2026-07-20",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Package & Env"
+  },
+  {
+   "name": "ESLint",
+   "uses": 390,
+   "sessions": 51,
+   "byMonth": {
+    "2026-07": 53,
+    "2026-08": 82,
+    "2026-09": 148,
+    "2026-10": 131
+   },
+   "agents": {
+    "claude": 241,
+    "codex": 149
+   },
+   "first": "2026-07-17",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Quality"
+  },
+  {
+   "name": "tmux",
+   "uses": 380,
+   "sessions": 30,
+   "byMonth": {
+    "2026-07": 45,
+    "2026-08": 75,
+    "2026-09": 141,
+    "2026-10": 108
+   },
+   "agents": {
+    "claude": 235,
+    "codex": 145
+   },
+   "first": "2026-07-12",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Terminal"
+  },
+  {
+   "name": "Ruff",
+   "uses": 330,
+   "sessions": 27,
+   "byMonth": {
+    "2026-07": 39,
+    "2026-08": 78,
+    "2026-09": 112,
+    "2026-10": 90
+   },
+   "agents": {
+    "claude": 204,
+    "codex": 126
+   },
+   "first": "2026-07-07",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Quality"
+  },
+  {
+   "name": "kubectl",
+   "uses": 310,
+   "sessions": 50,
+   "byMonth": {
+    "2026-07": 36,
+    "2026-08": 61,
+    "2026-09": 98,
+    "2026-10": 80
+   },
+   "agents": {
+    "claude": 192,
+    "codex": 118
+   },
+   "first": "2026-07-10",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Infrastructure"
+  },
+  {
+   "name": "Prettier",
+   "uses": 270,
+   "sessions": 19,
+   "byMonth": {
+    "2026-07": 35,
+    "2026-08": 62,
+    "2026-09": 90,
+    "2026-10": 77
+   },
+   "agents": {
+    "claude": 167,
+    "codex": 103
+   },
+   "first": "2026-07-06",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Quality"
+  },
+  {
+   "name": "AWS CLI",
+   "uses": 260,
+   "sessions": 21,
+   "byMonth": {
+    "2026-07": 30,
+    "2026-08": 64,
+    "2026-09": 93,
+    "2026-10": 70
+   },
+   "agents": {
+    "claude": 161,
+    "codex": 99
+   },
+   "first": "2026-07-13",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "Infrastructure"
+  },
+  {
+   "name": "Jest",
+   "uses": 210,
+   "sessions": 21,
+   "byMonth": {
+    "2026-07": 22,
+    "2026-08": 46,
+    "2026-09": 86,
+    "2026-10": 62
+   },
+   "agents": {
+    "claude": 130,
+    "codex": 80
+   },
+   "first": "2026-07-10",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Testing"
+  },
+  {
+   "name": "Codex CLI",
+   "uses": 210,
+   "sessions": 21,
+   "byMonth": {
+    "2026-07": 22,
+    "2026-08": 50,
+    "2026-09": 71,
+    "2026-10": 68
+   },
+   "agents": {
+    "claude": 130,
+    "codex": 80
+   },
+   "first": "2026-07-13",
+   "last": "2026-10-07",
+   "installed": true,
+   "category": "AI Agents"
+  },
+  {
+   "name": "Homebrew",
+   "uses": 190,
+   "sessions": 17,
+   "byMonth": {
+    "2026-07": 22,
+    "2026-08": 46,
+    "2026-09": 77,
+    "2026-10": 56
+   },
+   "agents": {
+    "claude": 117,
+    "codex": 73
+   },
+   "first": "2026-07-03",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Package & Env"
+  },
+  {
+   "name": "Claude Code",
+   "uses": 120,
+   "sessions": 12,
+   "byMonth": {
+    "2026-07": 15,
+    "2026-08": 28,
+    "2026-09": 37,
+    "2026-10": 37
+   },
+   "agents": {
+    "claude": 74,
+    "codex": 46
+   },
+   "first": "2026-07-13",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "AI Agents"
+  },
+  {
+   "name": "ffmpeg",
+   "uses": 90,
+   "sessions": 13,
+   "byMonth": {
+    "2026-07": 9,
+    "2026-08": 19,
+    "2026-09": 30,
+    "2026-10": 26
+   },
+   "agents": {
+    "claude": 55,
+    "codex": 35
+   },
+   "first": "2026-07-20",
+   "last": "2026-09-29",
+   "installed": true,
+   "category": "Creative"
+  },
+  {
+   "name": "Cargo/Rust",
+   "uses": 0,
+   "sessions": 0,
+   "installed": true,
+   "category": "Languages & Runtimes"
+  },
+  {
+   "name": "Terraform",
+   "uses": 0,
+   "sessions": 0,
+   "installed": true,
+   "category": "Infrastructure"
+  },
+  {
+   "name": "gcloud",
+   "uses": 0,
+   "sessions": 0,
+   "installed": true,
+   "category": "Infrastructure"
+  },
+  {
+   "name": "pandoc",
+   "uses": 0,
+   "sessions": 0,
+   "installed": true,
+   "category": "Documents"
+  }
+ ],
+ "skills": [
+  {
+   "name": "brainstorming",
+   "uses": 148,
+   "sessions": 16,
+   "byMonth": {
+    "2026-07": 20,
+    "2026-08": 34,
+    "2026-09": 48,
+    "2026-10": 39
+   },
+   "agents": {
+    "claude:agent": 118,
+    "claude:user": 30
+   },
+   "first": "2026-07-05",
+   "last": "2026-10-07",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "test-driven-development",
+   "uses": 132,
+   "sessions": 10,
+   "byMonth": {
+    "2026-07": 14,
+    "2026-08": 31,
+    "2026-09": 54,
+    "2026-10": 41
+   },
+   "agents": {
+    "claude:agent": 105,
+    "claude:user": 27
+   },
+   "first": "2026-07-12",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "code-review",
+   "uses": 96,
+   "sessions": 9,
+   "byMonth": {
+    "2026-07": 10,
+    "2026-08": 18,
+    "2026-09": 39,
+    "2026-10": 30
+   },
+   "agents": {
+    "claude:agent": 76,
+    "claude:user": 20
+   },
+   "first": "2026-07-17",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "systematic-debugging",
+   "uses": 88,
+   "sessions": 9,
+   "byMonth": {
+    "2026-07": 11,
+    "2026-08": 21,
+    "2026-09": 28,
+    "2026-10": 24
+   },
+   "agents": {
+    "claude:agent": 70,
+    "claude:user": 18
+   },
+   "first": "2026-07-10",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "writing-plans",
+   "uses": 77,
+   "sessions": 6,
+   "byMonth": {
+    "2026-07": 8,
+    "2026-08": 17,
+    "2026-09": 30,
+    "2026-10": 20
+   },
+   "agents": {
+    "claude:agent": 61,
+    "claude:user": 16
+   },
+   "first": "2026-07-12",
+   "last": "2026-10-07",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "frontend-design",
+   "uses": 61,
+   "sessions": 5,
+   "byMonth": {
+    "2026-07": 8,
+    "2026-08": 13,
+    "2026-09": 24,
+    "2026-10": 20
+   },
+   "agents": {
+    "claude:agent": 48,
+    "claude:user": 13
+   },
+   "first": "2026-07-05",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "commit-commands",
+   "uses": 55,
+   "sessions": 4,
+   "byMonth": {
+    "2026-07": 6,
+    "2026-08": 11,
+    "2026-09": 18,
+    "2026-10": 14
+   },
+   "agents": {
+    "claude:agent": 44,
+    "claude:user": 11
+   },
+   "first": "2026-07-15",
+   "last": "2026-09-29",
+   "source": "plugin",
+   "installed": false
+  },
+  {
+   "name": "pdf",
+   "uses": 44,
+   "sessions": 4,
+   "byMonth": {
+    "2026-07": 4,
+    "2026-08": 9,
+    "2026-09": 14,
+    "2026-10": 11
+   },
+   "agents": {
+    "claude:agent": 35,
+    "claude:user": 9
+   },
+   "first": "2026-07-05",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "init",
+   "uses": 40,
+   "sessions": 6,
+   "byMonth": {
+    "2026-07": 4,
+    "2026-08": 8,
+    "2026-09": 12,
+    "2026-10": 11
+   },
+   "agents": {
+    "claude:agent": 32,
+    "claude:user": 8
+   },
+   "first": "2026-07-20",
+   "last": "2026-10-07",
+   "source": "bundled",
+   "installed": false
+  },
+  {
+   "name": "docx",
+   "uses": 39,
+   "sessions": 5,
+   "byMonth": {
+    "2026-07": 4,
+    "2026-08": 7,
+    "2026-09": 12,
+    "2026-10": 12
+   },
+   "agents": {
+    "claude:agent": 31,
+    "claude:user": 8
+   },
+   "first": "2026-07-17",
+   "last": "2026-10-07",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "simplify",
+   "uses": 35,
+   "sessions": 3,
+   "byMonth": {
+    "2026-07": 3,
+    "2026-08": 8,
+    "2026-09": 13,
+    "2026-10": 11
+   },
+   "agents": {
+    "claude:agent": 28,
+    "claude:user": 7
+   },
+   "first": "2026-07-04",
+   "last": "2026-09-29",
+   "source": "bundled",
+   "installed": false
+  },
+  {
+   "name": "pr-review-toolkit",
+   "uses": 31,
+   "sessions": 2,
+   "byMonth": {
+    "2026-07": 3,
+    "2026-08": 7,
+    "2026-09": 10,
+    "2026-10": 9
+   },
+   "agents": {
+    "claude:agent": 24,
+    "claude:user": 7
+   },
+   "first": "2026-07-08",
+   "last": "2026-09-29",
+   "source": "plugin",
+   "installed": false
+  },
+  {
+   "name": "security-review",
+   "uses": 28,
+   "sessions": 3,
+   "byMonth": {
+    "2026-07": 2,
+    "2026-08": 6,
+    "2026-09": 9,
+    "2026-10": 7
+   },
+   "agents": {
+    "claude:agent": 22,
+    "claude:user": 6
+   },
+   "first": "2026-07-14",
+   "last": "2026-10-07",
+   "source": "bundled",
+   "installed": false
+  },
+  {
+   "name": "xlsx",
+   "uses": 22,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 2,
+    "2026-08": 4,
+    "2026-09": 7,
+    "2026-10": 6
+   },
+   "agents": {
+    "claude:agent": 17,
+    "claude:user": 5
+   },
+   "first": "2026-07-04",
+   "last": "2026-10-07",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "mcp-builder",
+   "uses": 18,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 2,
+    "2026-08": 4,
+    "2026-09": 6,
+    "2026-10": 5
+   },
+   "agents": {
+    "claude:agent": 14,
+    "claude:user": 4
+   },
+   "first": "2026-07-17",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "loop",
+   "uses": 14,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 1,
+    "2026-08": 3,
+    "2026-09": 5,
+    "2026-10": 3
+   },
+   "agents": {
+    "claude:agent": 11,
+    "claude:user": 3
+   },
+   "first": "2026-07-09",
+   "last": "2026-09-29",
+   "source": "bundled",
+   "installed": false
+  },
+  {
+   "name": "skill-creator",
+   "uses": 12,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 1,
+    "2026-08": 2,
+    "2026-09": 4,
+    "2026-10": 4
+   },
+   "agents": {
+    "claude:agent": 9,
+    "claude:user": 3
+   },
+   "first": "2026-07-17",
+   "last": "2026-10-07",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "data-viz",
+   "uses": 9,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 1,
+    "2026-08": 1,
+    "2026-09": 3,
+    "2026-10": 2
+   },
+   "agents": {
+    "claude:agent": 7,
+    "claude:user": 2
+   },
+   "first": "2026-07-13",
+   "last": "2026-10-07",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "claude-api",
+   "uses": 8,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 0,
+    "2026-08": 1,
+    "2026-09": 2,
+    "2026-10": 2
+   },
+   "agents": {
+    "claude:agent": 6,
+    "claude:user": 2
+   },
+   "first": "2026-07-03",
+   "last": "2026-10-07",
+   "source": "bundled",
+   "installed": false
+  },
+  {
+   "name": "pptx",
+   "uses": 7,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 0,
+    "2026-08": 1,
+    "2026-09": 2,
+    "2026-10": 1
+   },
+   "agents": {
+    "claude:agent": 5,
+    "claude:user": 2
+   },
+   "first": "2026-07-04",
+   "last": "2026-09-29",
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "feature-dev",
+   "uses": 4,
+   "sessions": 1,
+   "byMonth": {
+    "2026-07": 0,
+    "2026-08": 0,
+    "2026-09": 1,
+    "2026-10": 1
+   },
+   "agents": {
+    "claude:agent": 3,
+    "claude:user": 1
+   },
+   "first": "2026-07-03",
+   "last": "2026-10-07",
+   "source": "plugin",
+   "installed": false
+  },
+  {
+   "name": "changelog",
+   "uses": 0,
+   "sessions": 0,
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "release-notes",
+   "uses": 0,
+   "sessions": 0,
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "db-migrations",
+   "uses": 0,
+   "sessions": 0,
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "i18n-audit",
+   "uses": 0,
+   "sessions": 0,
+   "source": "user",
+   "installed": true
+  },
+  {
+   "name": "a11y-check",
+   "uses": 0,
+   "sessions": 0,
+   "source": "user",
+   "installed": true
+  }
+ ],
+ "mcp": [
+  {
+   "name": "github",
+   "uses": 2100,
+   "sessions": 314,
+   "byMonth": {
+    "2026-07": 278,
+    "2026-08": 401,
+    "2026-09": 838,
+    "2026-10": 621
+   },
+   "agents": {
+    "claude": 1302,
+    "codex": 798
+   },
+   "first": "2026-07-11",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "playwright",
+   "uses": 1500,
+   "sessions": 111,
+   "byMonth": {
+    "2026-07": 167,
+    "2026-08": 293,
+    "2026-09": 544,
+    "2026-10": 414
+   },
+   "agents": {
+    "claude": 930,
+    "codex": 570
+   },
+   "first": "2026-07-04",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "notion",
+   "uses": 640,
+   "sessions": 79,
+   "byMonth": {
+    "2026-07": 69,
+    "2026-08": 159,
+    "2026-09": 239,
+    "2026-10": 193
+   },
+   "agents": {
+    "claude": 396,
+    "codex": 244
+   },
+   "first": "2026-07-07",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "context7",
+   "uses": 520,
+   "sessions": 54,
+   "byMonth": {
+    "2026-07": 65,
+    "2026-08": 106,
+    "2026-09": 204,
+    "2026-10": 179
+   },
+   "agents": {
+    "claude": 322,
+    "codex": 198
+   },
+   "first": "2026-07-02",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "linear",
+   "uses": 380,
+   "sessions": 61,
+   "byMonth": {
+    "2026-07": 45,
+    "2026-08": 95,
+    "2026-09": 137,
+    "2026-10": 105
+   },
+   "agents": {
+    "claude": 235,
+    "codex": 145
+   },
+   "first": "2026-07-15",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "slack",
+   "uses": 120,
+   "sessions": 10,
+   "byMonth": {
+    "2026-07": 15,
+    "2026-08": 27,
+    "2026-09": 43,
+    "2026-10": 40
+   },
+   "agents": {
+    "claude": 74,
+    "codex": 46
+   },
+   "first": "2026-07-17",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "postgres",
+   "uses": 0,
+   "sessions": 0,
+   "installed": true
+  }
+ ],
+ "mcpTools": [],
+ "subagents": [
+  {
+   "name": "Explore",
+   "uses": 310,
+   "sessions": 26,
+   "byMonth": {
+    "2026-07": 42,
+    "2026-08": 64,
+    "2026-09": 122,
+    "2026-10": 98
+   },
+   "agents": {
+    "claude": 192,
+    "codex": 118
+   },
+   "first": "2026-07-05",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "general-purpose",
+   "uses": 190,
+   "sessions": 13,
+   "byMonth": {
+    "2026-07": 26,
+    "2026-08": 46,
+    "2026-09": 58,
+    "2026-10": 59
+   },
+   "agents": {
+    "claude": 117,
+    "codex": 73
+   },
+   "first": "2026-07-09",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "Plan",
+   "uses": 64,
+   "sessions": 8,
+   "byMonth": {
+    "2026-07": 6,
+    "2026-08": 15,
+    "2026-09": 25,
+    "2026-10": 20
+   },
+   "agents": {
+    "claude": 39,
+    "codex": 25
+   },
+   "first": "2026-07-10",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "code-reviewer",
+   "uses": 41,
+   "sessions": 3,
+   "byMonth": {
+    "2026-07": 4,
+    "2026-08": 8,
+    "2026-09": 13,
+    "2026-10": 10
+   },
+   "agents": {
+    "claude": 25,
+    "codex": 16
+   },
+   "first": "2026-07-12",
+   "last": "2026-10-07",
+   "installed": true
+  }
+ ],
+ "builtin": [
+  {
+   "name": "Bash",
+   "uses": 9800,
+   "sessions": 711,
+   "byMonth": {
+    "2026-07": 1192,
+    "2026-08": 1990,
+    "2026-09": 4020,
+    "2026-10": 2772
+   },
+   "agents": {
+    "claude": 6076,
+    "codex": 3724
+   },
+   "first": "2026-07-12",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "Read",
+   "uses": 8400,
+   "sessions": 1398,
+   "byMonth": {
+    "2026-07": 972,
+    "2026-08": 1833,
+    "2026-09": 3026,
+    "2026-10": 2293
+   },
+   "agents": {
+    "claude": 5208,
+    "codex": 3192
+   },
+   "first": "2026-07-17",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "Edit",
+   "uses": 6100,
+   "sessions": 906,
+   "byMonth": {
+    "2026-07": 801,
+    "2026-08": 1198,
+    "2026-09": 2253,
+    "2026-10": 1771
+   },
+   "agents": {
+    "claude": 3782,
+    "codex": 2318
+   },
+   "first": "2026-07-10",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "Grep",
+   "uses": 4200,
+   "sessions": 380,
+   "byMonth": {
+    "2026-07": 441,
+    "2026-08": 1050,
+    "2026-09": 1672,
+    "2026-10": 1129
+   },
+   "agents": {
+    "claude": 2604,
+    "codex": 1596
+   },
+   "first": "2026-07-20",
+   "last": "2026-10-07",
+   "installed": true
+  },
+  {
+   "name": "Write",
+   "uses": 2300,
+   "sessions": 189,
+   "byMonth": {
+    "2026-07": 294,
+    "2026-08": 505,
+    "2026-09": 774,
+    "2026-10": 714
+   },
+   "agents": {
+    "claude": 1426,
+    "codex": 874
+   },
+   "first": "2026-07-05",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "Glob",
+   "uses": 1900,
+   "sessions": 150,
+   "byMonth": {
+    "2026-07": 242,
+    "2026-08": 419,
+    "2026-09": 669,
+    "2026-10": 604
+   },
+   "agents": {
+    "claude": 1178,
+    "codex": 722
+   },
+   "first": "2026-07-17",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "TodoWrite",
+   "uses": 1700,
+   "sessions": 128,
+   "byMonth": {
+    "2026-07": 219,
+    "2026-08": 381,
+    "2026-09": 669,
+    "2026-10": 435
+   },
+   "agents": {
+    "claude": 1054,
+    "codex": 646
+   },
+   "first": "2026-07-19",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "Agent",
+   "uses": 520,
+   "sessions": 77,
+   "byMonth": {
+    "2026-07": 53,
+    "2026-08": 119,
+    "2026-09": 213,
+    "2026-10": 150
+   },
+   "agents": {
+    "claude": 322,
+    "codex": 198
+   },
+   "first": "2026-07-15",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "WebSearch",
+   "uses": 380,
+   "sessions": 34,
+   "byMonth": {
+    "2026-07": 47,
+    "2026-08": 88,
+    "2026-09": 136,
+    "2026-10": 97
+   },
+   "agents": {
+    "claude": 235,
+    "codex": 145
+   },
+   "first": "2026-07-03",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "WebFetch",
+   "uses": 260,
+   "sessions": 23,
+   "byMonth": {
+    "2026-07": 27,
+    "2026-08": 61,
+    "2026-09": 86,
+    "2026-10": 68
+   },
+   "agents": {
+    "claude": 161,
+    "codex": 99
+   },
+   "first": "2026-07-09",
+   "last": "2026-09-29",
+   "installed": true
+  },
+  {
+   "name": "NotebookEdit",
+   "uses": 35,
+   "sessions": 2,
+   "byMonth": {
+    "2026-07": 3,
+    "2026-08": 8,
+    "2026-09": 14,
+    "2026-10": 10
+   },
+   "agents": {
+    "claude": 21,
+    "codex": 14
+   },
+   "first": "2026-07-13",
+   "last": "2026-09-29",
+   "installed": true
+  }
+ ]
+}
