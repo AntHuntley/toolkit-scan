@@ -2,3 +2,4 @@ out/
 node_modules/
 .DS_Store
 docs/raw/
+demo/toolkit-scan-demo.html

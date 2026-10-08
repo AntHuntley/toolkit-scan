@@ -94,6 +94,10 @@ if __name__ == '__main__':
     save('overview.png', 'overview-top.png', crop=(0, 0, 2880, 1980))
     save('activity.png', 'overview-activity.png')
     save('tools-heat.png', 'tools-heat.png')
+    save('pruning.png', 'pruning.png', width=980)
+    save('compare-start.png', 'compare-start.png', width=1100)
+    save('compare-top.png', 'compare-top.png')
+    save('compare-common.png', 'compare-common.png')
     save('skills.png', 'skills-top.png')
     for f in sorted(os.listdir(OUT)):
         print(f, round(os.path.getsize(os.path.join(OUT, f)) / 1024), 'KB')

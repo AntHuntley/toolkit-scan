@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Cube, Tools } from '@carbon/icons-react'
+import { Cube, Cut, Tools } from '@carbon/icons-react'
 import { ToolkitSunburst, type ToolkitData } from './Sunburst'
 
 interface Row {
@@ -24,16 +24,16 @@ interface Fingerprint {
 
 // Same blue → green log scale as the Tools heat map; bars get lighter/brighter towards their tip for a glassy look.
 const LO = [59, 130, 246], HI = [22, 163, 74]
-const rgb = (t: number) => LO.map((c, i) => Math.round(c + (HI[i] - c) * t)).join(',')
-const lighten = (c: string, k: number) => c.split(',').map(v => Math.round(+v + (255 - +v) * k)).join(',')
-const heat = (n: number, max: number) => (max ? Math.log1p(n) / Math.log1p(max) : 0)
-const num = (n: number) => n.toLocaleString('en-US')
+export const rgb = (t: number) => LO.map((c, i) => Math.round(c + (HI[i] - c) * t)).join(',')
+export const lighten = (c: string, k: number) => c.split(',').map(v => Math.round(+v + (255 - +v) * k)).join(',')
+export const heat = (n: number, max: number) => (max ? Math.log1p(n) / Math.log1p(max) : 0)
+export const num = (n: number) => n.toLocaleString('en-US')
 const AGENT_LABEL: Record<string, string> = { claude: 'Claude Code', codex: 'Codex' }
 const AGENT_COLOR: Record<string, string> = { claude: '#e8895a', codex: '#cfcfd4' }
-const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+export const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)'
 
 // True once the element has scrolled into view (and immediately for reduced-motion users). Fires once.
-function useInView<T extends HTMLElement>(threshold = 0.15) {
+export function useInView<T extends HTMLElement>(threshold = 0.15) {
   const ref = useRef<T>(null)
   const [shown, setShown] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
   useEffect(() => {
@@ -46,7 +46,7 @@ function useInView<T extends HTMLElement>(threshold = 0.15) {
   return [ref, shown] as const
 }
 
-function Reveal({ children, delay = 0 }: { children: (shown: boolean) => ReactNode; delay?: number }) {
+export function Reveal({ children, delay = 0 }: { children: (shown: boolean) => ReactNode; delay?: number }) {
   const [ref, shown] = useInView<HTMLDivElement>()
   return (
     <div ref={ref} style={{ opacity: shown ? 1 : 0, transform: shown ? 'none' : 'translateY(22px)', transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ${EASE} ${delay}ms` }}>
@@ -65,7 +65,7 @@ function Tile({ label, value, sub, color }: { label: string; value: string | num
   )
 }
 
-function Panel({ title, hint, to, icon, children }: { title: string; hint?: string; to?: string; icon?: ReactNode; children: (shown: boolean) => ReactNode }) {
+export function Panel({ title, hint, to, icon, children }: { title: string; hint?: string; to?: string; icon?: ReactNode; children: (shown: boolean) => ReactNode }) {
   return (
     <Reveal>
       {shown => (
@@ -84,7 +84,7 @@ function Panel({ title, hint, to, icon, children }: { title: string; hint?: stri
 
 // Glassy bar: translucent gradient, slightly brighter towards the tip, faint top sheen, no outer glow.
 const darken = (c: string, k: number) => c.split(',').map(v => Math.round(+v * (1 - k))).join(',')
-function glass(c: string, vertical: boolean) {
+export function glass(c: string, vertical: boolean) {
   const base = darken(c, 0.28)
   return {
     background: `linear-gradient(${vertical ? '0deg' : '90deg'}, rgba(${darken(base, 0.35)},0.55) 0%, rgba(${base},0.78) 60%, rgba(${lighten(base, 0.22)},0.92) 100%)`,
@@ -93,11 +93,11 @@ function glass(c: string, vertical: boolean) {
     backdropFilter: 'blur(3px)',
   } as const
 }
-const Sheen = ({ vertical }: { vertical?: boolean }) => (
+export const Sheen = ({ vertical }: { vertical?: boolean }) => (
   <div style={{ position: 'absolute', inset: vertical ? '0 55% 0 0' : '0 0 55% 0', background: `linear-gradient(${vertical ? '90deg' : '180deg'}, rgba(255,255,255,0.13), rgba(255,255,255,0))`, borderRadius: 'inherit', pointerEvents: 'none' }} />
 )
 
-function Bars({ rows, shown }: { rows: Row[]; shown: boolean }) {
+export function Bars({ rows, shown }: { rows: Row[]; shown: boolean }) {
   const max = rows[0]?.uses || 0
   if (!rows.length) return <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Nothing found yet.</div>
   return (
@@ -162,6 +162,7 @@ export default function Overview() {
       from: dates[0], to: dates[dates.length - 1],
       unusedSkills: fp.skills.filter(s => s.installed && !s.uses),
       unusedTools: fp.tools.filter(t => t.uses === 0),
+      unusedMcp: fp.mcp.filter(m => m.uses === 0),
       skillsSb: skillsSunburst(fp.skills),
     }
   }, [fp])
@@ -204,7 +205,7 @@ export default function Overview() {
               <Tile label="Skills used" value={v.skillsUsed} sub={`${fp.installedCounts.skills} installed`} color="#b478ff" />
               <Tile label="MCP servers used" value={v.mcpUsed} sub={`${fp.installedCounts.mcp} configured`} color="#6395ff" />
               <Tile label="Agent tool calls" value={v.calls} color="#50dc82" />
-              <Tile label="Never used" value={v.unusedSkills.length + v.unusedTools.length} sub="installed skills + tools" color="#ce9178" />
+              <Tile label="Never used" value={v.unusedSkills.length + v.unusedTools.length + v.unusedMcp.length} sub="skills, tools + MCP servers" color="#ce9178" />
             </div>
           )}
         </Reveal>
@@ -239,15 +240,28 @@ export default function Overview() {
           <Panel title="Top tools" hint="uses · sessions" to="/toolkit" icon={<Tools size={20} style={{ color: '#4ec9b0' }} />}>{shown => <Bars rows={fp.tools.filter(t => t.uses).slice(0, 8)} shown={shown} />}</Panel>
           <Panel title="Top skills" hint="uses · sessions" to="/skills" icon={<Cube size={20} style={{ color: '#b478ff' }} />}>{shown => <Bars rows={fp.skills.filter(s => s.uses).slice(0, 8)} shown={shown} />}</Panel>
           <Panel title="MCP servers" hint="calls · sessions" to="/toolkit">{shown => <Bars rows={fp.mcp.filter(m => m.uses).slice(0, 6)} shown={shown} />}</Panel>
-          <Panel title="Installed but never used" hint="candidates to prune" to="/skills">
-            {() => v.unusedSkills.length + v.unusedTools.length === 0
-              ? <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Everything installed has been used.</div>
-              : <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {[...v.unusedSkills, ...v.unusedTools].slice(0, 28).map(r => (
-                    <span key={r.name} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#c9a99a', border: '1px solid rgba(206,145,120,0.3)', background: 'rgba(206,145,120,0.07)', borderRadius: 5, padding: '3px 8px' }}>{r.name}</span>
-                  ))}
-                  {v.unusedSkills.length + v.unusedTools.length > 28 && <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'center' }}>+{v.unusedSkills.length + v.unusedTools.length - 28} more</span>}
-                </div>}
+          <Panel title="Consider for pruning" hint="installed but never used" to="/skills" icon={<Cut size={20} style={{ color: '#ce9178' }} />}>
+            {() => {
+              const items = [
+                ...v.unusedMcp.map(r => ({ name: r.name, kind: 'MCP', color: '99,149,255' })),
+                ...v.unusedSkills.map(r => ({ name: r.name, kind: 'skill', color: '180,120,255' })),
+                ...v.unusedTools.map(r => ({ name: r.name, kind: 'tool', color: '78,201,176' })),
+              ]
+              if (!items.length) return <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Everything installed has been used.</div>
+              return (
+                <>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {items.slice(0, 30).map(r => (
+                      <span key={r.kind + r.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#d8d8d8', border: `1px solid rgba(${r.color},0.35)`, background: `rgba(${r.color},0.08)`, borderRadius: 5, padding: '3px 8px' }}>
+                        <span style={{ fontSize: 7.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: `rgb(${r.color})` }}>{r.kind}</span>{r.name}
+                      </span>
+                    ))}
+                    {items.length > 30 && <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'center' }}>+{items.length - 30} more</span>}
+                  </div>
+                  <div style={{ marginTop: 14, fontSize: 10.5, lineHeight: 1.5, color: 'var(--text-muted)' }}>Every enabled skill and MCP server adds to what your agent has to load and choose between. Unused ones are the safest to remove.</div>
+                </>
+              )
+            }}
           </Panel>
         </div>
 

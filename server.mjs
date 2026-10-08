@@ -26,6 +26,9 @@ const server = http.createServer((req, res) => {
     if (p === '/api/skills') return send(res, 200, d.skills)
     if (p === '/api/statistics') return send(res, 200, d.statistics)
     if (p === '/api/fingerprint') return send(res, 200, fp)
+    if (p === '/api/sample-friend') { // synthetic friend for trying the Compare tab without a real file
+      try { return send(res, 200, fs.readFileSync(path.join(here, 'demo/friend.demo.json'), 'utf8')) } catch { return send(res, 404, { error: 'no sample' }) }
+    }
     return send(res, 404, { error: 'not found' })
   }
   const root = path.join(here, 'ui')

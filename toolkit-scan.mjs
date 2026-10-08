@@ -19,7 +19,7 @@ if (has('--help') || has('-h')) {
   process.exit(0)
 }
 function fsHelp() {
-  return `toolkit-scan — see which tools, skills and MCP servers you actually use.\n\n  node toolkit-scan.mjs            scan, then open the dashboard\n  --share                          write a single shareable HTML file instead\n  --cached                         reuse the previous scan\n  --discover                       list transcript folders found, then exit\n  --demo                           open the dashboard with sample data (no transcripts needed)\n  --source <dir>                   add a transcript folder (repeatable)\n  --no-open                        don't launch the browser\n\nTranscript folders are also read from ~/.toolkit-scan/sources.json ({"paths":[...]}), CLAUDE_CONFIG_DIR and CODEX_HOME.`
+  return `toolkit-scan — see which tools, skills and MCP servers you actually use.\n\n  node toolkit-scan.mjs            scan, then open the dashboard\n  --share                          write a single shareable HTML file instead\n  --export --name "Sam"            write a small file to send to a friend for the Compare tab\n  --cached                         reuse the previous scan\n  --discover                       list transcript folders found, then exit\n  --demo                           open the dashboard with sample data (no transcripts needed)\n  --source <dir>                   add a transcript folder (repeatable)\n  --no-open                        don't launch the browser\n\nTranscript folders are also read from ~/.toolkit-scan/sources.json ({"paths":[...]}), CLAUDE_CONFIG_DIR and CODEX_HOME.`
 }
 
 // --demo: show the dashboard with synthetic sample data (no transcripts needed). Add --share to export it as a file.
@@ -37,6 +37,13 @@ if (!has('--cached')) {
 }
 
 if (has('--share')) process.exit(spawnSync(node, [path.join(here, 'share.mjs')], { stdio: 'inherit' }).status ?? 1)
+
+// --export [--name "Sam"]: write the small compare file to send to a friend (see the "Compare with a Friend" tab)
+if (has('--export')) {
+  const i = args.indexOf('--name')
+  const nameArgs = i >= 0 && args[i + 1] ? ['--name', args[i + 1]] : []
+  process.exit(spawnSync(node, [path.join(here, 'share.mjs'), '--json', ...nameArgs], { stdio: 'inherit' }).status ?? 1)
+}
 
 spawn(node, [path.join(here, 'server.mjs'), ...args.filter(a => a === '--no-open')], { stdio: 'inherit' })
 }

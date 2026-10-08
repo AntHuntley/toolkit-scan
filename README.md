@@ -17,7 +17,7 @@
 
 ## Quickstart
 
-Paste this into Claude Code, Codex or any coding agent that can run commands on your machine. It does the rest.
+Paste this into Claude Code, Codex or any coding agent that can run commands on your machine. It does the rest. *(Hover the box and click the copy icon in its top-right corner.)*
 
 ```text
 Set up and run "Toolkit Scan" for me: https://github.com/AntHuntley/toolkit-scan
@@ -33,6 +33,9 @@ Don't edit any files in the repo. Transcripts are read-only and must never be up
 ```
 
 > **If the agent can't clone the repo,** you probably don't have access to it yet. Ask the owner, or use the manual steps below.
+
+> [!TIP]
+> **Ever wondered what tools your friends are using with their agents?** Ask them to run this, then compare: see what you share, where you differ, and which tools or skills you might want to add to your own toolkit. The dashboard has a **Compare with a Friend** tab that makes it a one-minute job. [See how it works](#compare-with-a-friend).
 
 ---
 
@@ -92,6 +95,81 @@ Every skill with its usage count, source (yours, plugin, bundled) and last-used 
 
 ---
 
+## Compare with a friend
+
+Open the **Compare with a Friend** tab. It walks you through it:
+
+<div align="center">
+<img src="docs/images/compare-start.png" alt="Compare with a Friend: a prompt to send, then drop their file" width="80%">
+</div>
+
+1. **Send your friend the prompt** (the tab has a copy button). They paste it into Claude Code, Codex or any coding agent. It sets Toolkit Scan up and writes one small file of names and usage counts: no prompts, code or file paths.
+2. **They send you the file**, `toolkit-scan-compare.json` (about 50 KB). Their shared dashboard (`.html` from `--share`) works too.
+3. **Drop it on the tab.** A new tab, **You × Sam**, appears with the comparison. Add as many friends as you like; each gets its own tab.
+
+Prefer to send it yourself? This is the prompt your friend runs:
+
+```text
+Please set up Toolkit Scan and export my toolkit file so a friend can compare it with theirs: https://github.com/AntHuntley/toolkit-scan
+
+1. Check Node.js 18+ is installed (`node --version`). If it isn't, tell me and stop. Don't install anything without asking.
+2. Clone the repo into ~/toolkit-scan (skip if it's already there) and cd into it.
+3. Run `node toolkit-scan.mjs --export --name "<MY FIRST NAME>"`. If it can't find my transcripts, run `node toolkit-scan.mjs --discover`, help me find them, and ask before adding any folder to ~/.toolkit-scan/sources.json.
+4. Open ~/.toolkit-scan/toolkit-scan-compare.json and show me every skill and MCP-server name in it. Tell me if anything looks private or client-specific, and wait for my OK.
+5. Tell me the file's full path so I can send it. Don't upload or send it anywhere yourself.
+
+Don't edit any files in the repo. Transcripts are read-only.
+```
+
+### What the comparison shows
+
+<div align="center">
+<img src="docs/images/compare-top.png" alt="You x Sam: overlap, highlights and things worth trying" width="100%">
+</div>
+
+- **Overlap.** One number for how alike your toolkits are, and a bar splitting everything into *only you*, *in common* and *only them*, by tools, skills and MCP servers.
+- **Highlights.** The few things most worth knowing, in plain sentences: what's worth a look, what you could tell them about, your biggest difference in habit.
+- **Worth trying.** Everything they use that you don't, ranked by how much they rely on it. Their custom skills are marked, since those are theirs to share; plugin and built-in ones you can install yourself.
+- **You could tell them about.** The same list the other way round.
+- **In common.** The things you both use, side by side, as a share of each person's own usage.
+- **Same tool, different habits.** Shared tools you lean on very differently (for example *Sam uses kubectl 9× more*).
+- **Habits.** How much of what's installed each of you actually uses, how broad your toolkits are, which agent you favour, and where your tool usage goes by category.
+
+<div align="center">
+<img src="docs/images/compare-common.png" alt="Side-by-side comparison of shared tools, differing habits and habits" width="100%">
+</div>
+
+**Fair by design.** Two people's histories are rarely the same length, so the comparison uses *who uses what* and *each person's share of their own usage*, never raw counts. The date range for each of you is shown at the bottom.
+
+**Private by design.** The file holds tool, skill and MCP-server names with usage counts and dates. Your friend's file is read in your browser and saved only in that browser's local storage; nothing is uploaded. Remove a friend any time from their tab.
+
+---
+
+## Keep your toolkit lean
+
+The Overview ends with a **Consider for pruning** panel: every MCP server, skill and tool you have installed but never used in the history that was scanned.
+
+<div align="center">
+<img src="docs/images/pruning.png" alt="Consider for pruning panel listing unused MCP servers, skills and tools" width="80%">
+</div>
+
+**Why bother?**
+
+- **Less context, lower cost.** Your agent loads the name and description of every enabled skill, and the tool definitions of every connected MCP server, into its context. That space (and the tokens, on metered plans) is spent before you've typed anything, on things you never use.
+- **Better choices.** The more overlapping skills and tools an agent can pick from, the more likely it is to reach for the wrong one or trigger a skill you didn't intend. A smaller set is easier to choose well from.
+- **Steadier sessions.** An MCP server is usually a process that has to start and stay healthy. Unused ones are start-up time and something else that can fail.
+- **Smaller attack surface.** Skills and MCP servers can run code and reach your files, accounts and network. Each one you keep is something you have to trust and keep up to date.
+- **Less to maintain.** Fewer things to update, audit and explain to teammates.
+
+**How to act on it**
+
+1. **Check the date range first.** "Never used" only means never used in the scanned history, and Claude Code keeps 30 days of transcripts by default. Seasonal or occasional tools can look unused.
+2. **Start with MCP servers, then skills, then tools.** MCP servers usually cost the most to keep loaded. In Claude Code, for example, `claude mcp remove <name>` takes one out.
+3. **Move skills aside instead of deleting them.** Take the folder out of `~/.claude/skills` (or `~/.codex/skills`) so it's easy to put back.
+4. **Rescan after a week** to see whether you missed any of them.
+
+---
+
 ## How it works
 
 ```mermaid
@@ -118,6 +196,7 @@ flowchart LR
 | `node toolkit-scan.mjs` | Scan, then open the dashboard on localhost |
 | `node toolkit-scan.mjs --demo` | Open the dashboard with sample data (no transcripts needed) |
 | `node toolkit-scan.mjs --share` | Scan, then write **one self-contained HTML file** you can send, host or publish |
+| `node toolkit-scan.mjs --export --name "Sam"` | Scan, then write a small file (`~/.toolkit-scan/toolkit-scan-compare.json`) to send to a friend for the Compare tab |
 | `node toolkit-scan.mjs --cached` | Skip the scan and reuse the last result |
 | `node toolkit-scan.mjs --discover` | List the transcript folders it found, then exit |
 | `node toolkit-scan.mjs --source <dir>` | Add a transcript folder (repeatable) |
