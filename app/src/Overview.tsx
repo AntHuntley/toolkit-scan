@@ -236,8 +236,8 @@ export default function Overview() {
         </Panel>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(520px, 1fr))', gap: 24 }}>
-          <Panel title="Top tools" hint="uses · sessions" to="/toolkit">{shown => <Bars rows={fp.tools.filter(t => t.uses).slice(0, 8)} shown={shown} />}</Panel>
-          <Panel title="Top skills" hint="uses · sessions" to="/skills">{shown => <Bars rows={fp.skills.filter(s => s.uses).slice(0, 8)} shown={shown} />}</Panel>
+          <Panel title="Top tools" hint="uses · sessions" to="/toolkit" icon={<Tools size={20} style={{ color: '#4ec9b0' }} />}>{shown => <Bars rows={fp.tools.filter(t => t.uses).slice(0, 8)} shown={shown} />}</Panel>
+          <Panel title="Top skills" hint="uses · sessions" to="/skills" icon={<Cube size={20} style={{ color: '#b478ff' }} />}>{shown => <Bars rows={fp.skills.filter(s => s.uses).slice(0, 8)} shown={shown} />}</Panel>
           <Panel title="MCP servers" hint="calls · sessions" to="/toolkit">{shown => <Bars rows={fp.mcp.filter(m => m.uses).slice(0, 6)} shown={shown} />}</Panel>
           <Panel title="Installed but never used" hint="candidates to prune" to="/skills">
             {() => v.unusedSkills.length + v.unusedTools.length === 0
