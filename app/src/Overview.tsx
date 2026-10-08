@@ -81,18 +81,19 @@ function Panel({ title, hint, to, children }: { title: string; hint?: string; to
   )
 }
 
-// Glassy bar: translucent gradient that brightens towards the tip, top highlight, soft glow.
+// Glassy bar: translucent gradient, slightly brighter towards the tip, faint top sheen, no outer glow.
+const darken = (c: string, k: number) => c.split(',').map(v => Math.round(+v * (1 - k))).join(',')
 function glass(c: string, vertical: boolean) {
-  const hi = lighten(c, 0.42)
+  const base = darken(c, 0.28)
   return {
-    background: `linear-gradient(${vertical ? '0deg' : '90deg'}, rgba(${c},0.5) 0%, rgba(${lighten(c, 0.18)},0.8) 55%, rgba(${hi},0.97) 100%)`,
-    border: '1px solid rgba(255,255,255,0.22)',
-    boxShadow: `0 0 16px rgba(${hi},0.26), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -6px 10px rgba(0,0,0,0.18)`,
+    background: `linear-gradient(${vertical ? '0deg' : '90deg'}, rgba(${darken(base, 0.35)},0.55) 0%, rgba(${base},0.78) 60%, rgba(${lighten(base, 0.22)},0.92) 100%)`,
+    border: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -5px 8px rgba(0,0,0,0.28)',
     backdropFilter: 'blur(3px)',
   } as const
 }
 const Sheen = ({ vertical }: { vertical?: boolean }) => (
-  <div style={{ position: 'absolute', inset: vertical ? '0 50% 0 0' : '0 0 50% 0', background: `linear-gradient(${vertical ? '90deg' : '180deg'}, rgba(255,255,255,0.3), rgba(255,255,255,0))`, borderRadius: 'inherit', pointerEvents: 'none' }} />
+  <div style={{ position: 'absolute', inset: vertical ? '0 55% 0 0' : '0 0 55% 0', background: `linear-gradient(${vertical ? '90deg' : '180deg'}, rgba(255,255,255,0.13), rgba(255,255,255,0))`, borderRadius: 'inherit', pointerEvents: 'none' }} />
 )
 
 function Bars({ rows, shown }: { rows: Row[]; shown: boolean }) {
