@@ -11,12 +11,24 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d }
 const data = arg('--data', path.join(os.homedir(), '.toolkit-scan/fingerprint.json'))
 const out = arg('--out', path.join(os.homedir(), '.toolkit-scan/toolkit-scan-share.html'))
+// usage: node share.mjs [--data FILE] [--out FILE]            one-file HTML dashboard
+//        node share.mjs --json [--name NAME] [--out FILE]     small compare file to send to a friend
 
 const fp = JSON.parse(fs.readFileSync(data, 'utf8'))
 // Strip anything that identifies the machine or hints at private content: transcript folders (contain the user name),
 // the unknown-command tail and non-skill slash commands (can contain private script names).
 delete fp.sources; delete fp.unknownCli; delete fp.slashOther
 fp.redacted = true
+// --json: write the small compare file a friend sends back (loaded by the "Compare with a Friend" tab) instead of HTML
+if (process.argv.includes('--json')) {
+  const jout = arg('--out', path.join(os.homedir(), '.toolkit-scan/toolkit-scan-compare.json'))
+  const envelope = { toolkitScan: 1, name: arg('--name', '') || 'Friend', exportedAt: new Date().toISOString(), fingerprint: fp }
+  fs.mkdirSync(path.dirname(jout), { recursive: true })
+  fs.writeFileSync(jout, JSON.stringify(envelope))
+  console.log(`wrote ${jout} (${(fs.statSync(jout).size / 1024).toFixed(0)} KB)`)
+  console.log('Includes: tool/skill/MCP-server names with usage counts and dates. Excludes: file paths, unknown commands, prompts, transcript text.')
+  process.exit(0)
+}
 const payload = { ...build(fp), fingerprint: fp }
 
 const template = path.join(here, 'ui-single/index.html')
