@@ -26,6 +26,7 @@
     "build": "npm run build:ui && npm run build:single"
   },
   "devDependencies": {
+    "@carbon/icons-react": "^11.90.0",
     "@types/d3": "^7.4.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

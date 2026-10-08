@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { Cube, Tools } from '@carbon/icons-react'
 import { ToolkitSunburst, type ToolkitData } from './Sunburst'
 
 interface Row {
@@ -64,13 +65,13 @@ function Tile({ label, value, sub, color }: { label: string; value: string | num
   )
 }
 
-function Panel({ title, hint, to, children }: { title: string; hint?: string; to?: string; children: (shown: boolean) => ReactNode }) {
+function Panel({ title, hint, to, icon, children }: { title: string; hint?: string; to?: string; icon?: ReactNode; children: (shown: boolean) => ReactNode }) {
   return (
     <Reveal>
       {shown => (
         <section style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '22px 26px', minWidth: 0, height: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{title}</h2>
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 9 }}>{icon}{title}</h2>
             {hint && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8.5, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{hint}</span>}
             {to && <Link to={to} style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)' }}>View all →</Link>}
           </div>
@@ -188,10 +189,10 @@ export default function Overview() {
 
         {/* Hero: the two sunbursts */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(560px, 1fr))', gap: 24 }}>
-          <Panel title="Tools" hint="hover a segment · click to pin" to="/toolkit">
+          <Panel title="Tools" hint="hover a segment · click to pin" to="/toolkit" icon={<Tools size={20} style={{ color: '#4ec9b0' }} />}>
             {() => (toolkit ? <ToolkitSunburst data={toolkit} compact noun="tools" /> : null)}
           </Panel>
-          <Panel title="Skills" hint="by source and how often used" to="/skills">
+          <Panel title="Skills" hint="by source and how often used" to="/skills" icon={<Cube size={20} style={{ color: '#b478ff' }} />}>
             {() => <ToolkitSunburst data={v.skillsSb} compact noun="skills" />}
           </Panel>
         </div>
@@ -254,10 +255,11 @@ export default function Overview() {
           {() => (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, marginTop: 8 }}>
               {[
-                { to: '/toolkit', title: 'Explore your tools', sub: `${toolkit?.total ?? fp.tools.length + fp.mcp.length} tools, MCP servers and agents · heat map, categories, detail`, color: '78,201,176' },
-                { to: '/skills', title: 'Explore your skills', sub: `${fp.skills.length} skills · usage counts, sources, never-used`, color: '180,120,255' },
+                { to: '/toolkit', title: 'Explore your tools', sub: `${toolkit?.total ?? fp.tools.length + fp.mcp.length} tools, MCP servers and agents · heat map, categories, detail`, color: '78,201,176', Icon: Tools },
+                { to: '/skills', title: 'Explore your skills', sub: `${fp.skills.length} skills · usage counts, sources, never-used`, color: '180,120,255', Icon: Cube },
               ].map(c => (
                 <Link key={c.to} to={c.to} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '22px 26px', borderRadius: 12, border: `1px solid rgba(${c.color},0.35)`, background: `linear-gradient(135deg, rgba(${c.color},0.14) 0%, rgba(${c.color},0.03) 100%)` }}>
+                  <c.Icon size={28} style={{ color: `rgb(${c.color})`, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 500, color: '#fff', marginBottom: 4 }}>{c.title}</div>
                     <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: '0.06em', color: 'var(--text-muted)' }}>{c.sub}</div>

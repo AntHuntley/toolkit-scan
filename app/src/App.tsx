@@ -2,11 +2,12 @@ import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Overview from './Overview'
 import Toolkit from './Toolkit'
 import Skills from './Skills'
+import { Cube, Tools } from '@carbon/icons-react'
 
 const TABS = [
-  { to: '/', label: 'Overview', end: true },
-  { to: '/toolkit', label: 'Tools' },
-  { to: '/skills', label: 'Skills' },
+  { to: '/', label: 'Overview', end: true, Icon: null },
+  { to: '/toolkit', label: 'Tools', Icon: Tools },
+  { to: '/skills', label: 'Skills', Icon: Cube },
 ]
 
 export default function App() {
@@ -20,11 +21,13 @@ export default function App() {
           {TABS.map(t => (
             <NavLink key={t.to} to={t.to} end={t.end}
               style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: 7,
                 fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.16em', textTransform: 'uppercase',
                 padding: '7px 14px', borderRadius: 6,
                 color: isActive ? 'var(--teal)' : 'var(--text-dim)',
                 background: isActive ? 'rgba(78,201,176,0.10)' : 'transparent',
               })}>
+              {t.Icon && <t.Icon size={15} />}
               {t.label}
             </NavLink>
           ))}
